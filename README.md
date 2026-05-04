@@ -83,7 +83,7 @@ DepthIQ/
 ### 1. Clone repo
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/DepthIQ.git
+git clone https://github.com/AdamssDavidEneojo/DepthIQ.git
 cd DepthIQ
 ```
 
