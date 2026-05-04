@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ALPHA ROP Dashboard</title>
+<title>ALPHA Drilling Intelligence</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -11,90 +11,89 @@
     body {
         margin: 0;
         font-family: 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg, #0f172a, #1e293b);
+        background: #0b1220;
         color: white;
+        display: flex;
     }
 
-    /* TOP LOGO BAR */
-    .topbar {
-        display: flex;
-        justify-content: center;
-        padding: 20px 0;
+    /* SIDEBAR */
+    .sidebar {
+        width: 220px;
+        background: #0f172a;
+        padding: 20px;
+        height: 100vh;
+        position: fixed;
     }
 
     .logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 18px;
-        border-radius: 14px;
-
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.15);
-        backdrop-filter: blur(12px);
-
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-
-    .logo-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 10px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        font-weight: bold;
-        font-size: 20px;
-
-        color: white;
-        background: linear-gradient(135deg, #00c6ff, #0072ff);
-    }
-
-    .logo-text {
         font-size: 18px;
-        font-weight: 700;
-        letter-spacing: 2px;
-        color: white;
-    }
-
-    /* HEADER */
-    .header {
-        text-align: center;
-        font-size: 22px;
         font-weight: bold;
-        margin-top: 10px;
+        margin-bottom: 30px;
+        color: #38bdf8;
     }
 
-    .sub {
-        text-align: center;
+    .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        font-size: 14px;
         color: #94a3b8;
-        font-size: 13px;
+    }
+
+    .nav div:hover {
+        color: white;
+        cursor: pointer;
+    }
+
+    /* MAIN */
+    .main {
+        margin-left: 240px;
+        padding: 20px;
+        width: 100%;
+    }
+
+    /* TOP BAR */
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 20px;
     }
 
-    /* CONTAINER */
-    .container {
-        max-width: 1000px;
-        margin: auto;
-        padding: 20px;
+    .status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        background: #16a34a;
+        font-size: 12px;
+    }
+
+    /* CARDS */
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
     }
 
     .card {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 20px;
-        border-radius: 15px;
-        backdrop-filter: blur(10px);
-        margin-bottom: 20px;
+        background: #111827;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #1f2937;
     }
 
-    h3 {
+    .card h3 {
+        margin: 0;
         color: #38bdf8;
-        margin-bottom: 10px;
+        font-size: 14px;
     }
 
+    .value {
+        font-size: 22px;
+        margin-top: 8px;
+    }
+
+    /* INPUT SECTION */
     .grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -104,72 +103,81 @@
     input {
         padding: 10px;
         border-radius: 8px;
-        border: none;
-        outline: none;
-        background: rgba(255,255,255,0.08);
+        border: 1px solid #1f2937;
+        background: #0b1220;
         color: white;
-    }
-
-    input::placeholder {
-        color: #cbd5e1;
     }
 
     button {
         width: 100%;
         padding: 12px;
+        margin-top: 10px;
         border: none;
         border-radius: 10px;
         background: linear-gradient(90deg, #06b6d4, #3b82f6);
         color: white;
         font-weight: bold;
         cursor: pointer;
-        margin-top: 10px;
-        transition: 0.3s;
-    }
-
-    button:hover {
-        transform: scale(1.02);
     }
 
     canvas {
         margin-top: 20px;
-        background: rgba(255,255,255,0.03);
+        background: #0b1220;
         padding: 10px;
         border-radius: 10px;
-    }
-
-    .footer {
-        text-align: center;
-        font-size: 12px;
-        color: #94a3b8;
-        margin-top: 20px;
+        border: 1px solid #1f2937;
     }
 </style>
 </head>
 
 <body>
 
-<!-- LOGO -->
-<div class="topbar">
-    <div class="logo">
-        <div class="logo-icon">A</div>
-        <div class="logo-text">ALPHA</div>
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="logo">⚡ ALPHA AI</div>
+    <div class="nav">
+        <div>Dashboard</div>
+        <div>Prediction</div>
+        <div>Analytics</div>
+        <div>Reports</div>
     </div>
 </div>
 
-<div class="header"> ROP AI Dashboard</div>
-<div class="sub">Machine Learning Prediction System for Drilling Optimization</div>
+<!-- MAIN -->
+<div class="main">
 
-<div class="container">
+    <!-- TOP -->
+    <div class="topbar">
+        <h2>Drilling Intelligence Dashboard</h2>
+        <div class="status">● API Online</div>
+    </div>
 
-    <!-- INPUTS -->
+    <!-- KPI CARDS -->
+    <div class="cards">
+        <div class="card">
+            <h3>ROP Average</h3>
+            <div class="value" id="avg">--</div>
+        </div>
+
+        <div class="card">
+            <h3>ROP Cut Unit</h3>
+            <div class="value" id="cut">--</div>
+        </div>
+
+        <div class="card">
+            <h3>ROP Fast</h3>
+            <div class="value" id="fast">--</div>
+        </div>
+    </div>
+
+    <!-- INPUT -->
     <div class="card">
-        <h3>📥 Input Parameters</h3>
+        <h3>Input Parameters</h3>
 
         <div class="grid">
             <input id="ad_rop_sp" placeholder="AD ROP SP">
-            <input id="ad_torque_sp" placeholder="AD Torque SP">
-            <input id="accum_trip_in" placeholder="Accum Trip In">
+            <input id="ad_torque_sp" placeholder="Torque SP">
+            <input id="accum_trip_in" placeholder="Trip In">
             <input id="datetime" type="datetime-local">
             <input id="depth_of_cut" placeholder="Depth of Cut">
             <input id="hook_load" placeholder="Hook Load">
@@ -177,29 +185,11 @@
             <input id="wc_bit_weight" placeholder="Bit Weight">
         </div>
 
-        <button onclick="predict()">🔮 Predict ROP</button>
-    </div>
-
-    <!-- ACTUAL VALUES -->
-    <div class="card">
-        <h3> Actual Values (Optional)</h3>
-
-        <div class="grid">
-            <input id="actual_avg" placeholder="Actual ROP Avg">
-            <input id="actual_cut" placeholder="Actual ROP Cut">
-            <input id="actual_fast" placeholder="Actual ROP Fast">
-        </div>
+        <button onclick="predict()">Run Prediction</button>
     </div>
 
     <!-- CHART -->
-    <div class="card">
-        <h3> Prediction Results</h3>
-        <canvas id="chart"></canvas>
-    </div>
-
-    <div class="footer">
-        Built with FastAPI + ML + Render • ALPHA Engineering System
-    </div>
+    <canvas id="chart"></canvas>
 
 </div>
 
@@ -208,68 +198,51 @@ let chart;
 
 async function predict() {
 
-    const dateValue = document.getElementById("datetime").value;
-    const datetimeNumber = dateValue ? new Date(dateValue).getTime() : 0;
-
     const data = {
-        ad_rop_sp: parseFloat(document.getElementById("ad_rop_sp").value),
-        ad_torque_sp: parseFloat(document.getElementById("ad_torque_sp").value),
-        accum_trip_in: parseFloat(document.getElementById("accum_trip_in").value),
-        datetime: datetimeNumber,
-        depth_of_cut: parseFloat(document.getElementById("depth_of_cut").value),
-        hook_load: parseFloat(document.getElementById("hook_load").value),
-        total_gas: parseFloat(document.getElementById("total_gas").value),
-        wc_bit_weight: parseFloat(document.getElementById("wc_bit_weight").value)
+        ad_rop_sp: +document.getElementById("ad_rop_sp").value,
+        ad_torque_sp: +document.getElementById("ad_torque_sp").value,
+        accum_trip_in: +document.getElementById("accum_trip_in").value,
+        datetime: new Date(document.getElementById("datetime").value).getTime(),
+        depth_of_cut: +document.getElementById("depth_of_cut").value,
+        hook_load: +document.getElementById("hook_load").value,
+        total_gas: +document.getElementById("total_gas").value,
+        wc_bit_weight: +document.getElementById("wc_bit_weight").value
     };
 
-    const response = await fetch("/predict", {
+    const res = await fetch("/predict", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
     });
 
-    const result = await response.json();
+    const r = await res.json();
 
-    const predicted = [
-        result.ROP_Average,
-        result.ROP_Cut_Unit,
-        result.ROP_Fast
+    const values = [
+        r.ROP_Average,
+        r.ROP_Cut_Unit,
+        r.ROP_Fast
     ];
 
-    const actual = [
-        parseFloat(document.getElementById("actual_avg").value) || 0,
-        parseFloat(document.getElementById("actual_cut").value) || 0,
-        parseFloat(document.getElementById("actual_fast").value) || 0
-    ];
+    // update KPI cards
+    document.getElementById("avg").innerText = r.ROP_Average.toFixed(2);
+    document.getElementById("cut").innerText = r.ROP_Cut_Unit.toFixed(2);
+    document.getElementById("fast").innerText = r.ROP_Fast.toFixed(2);
 
+    // chart
     if (chart) chart.destroy();
 
     chart = new Chart(document.getElementById("chart"), {
-        type: "bar",
+        type: "line",
         data: {
-            labels: ["ROP Average", "ROP Cut Unit", "ROP Fast"],
-            datasets: [
-                {
-                    label: "Predicted",
-                    data: predicted,
-                    backgroundColor: "#38bdf8"
-                },
-                {
-                    label: "Actual",
-                    data: actual,
-                    backgroundColor: "#f59e0b"
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { labels: { color: "white" } }
-            },
-            scales: {
-                x: { ticks: { color: "white" } },
-                y: { ticks: { color: "white" } }
-            }
+            labels: ["Average", "Cut Unit", "Fast"],
+            datasets: [{
+                label: "ROP Prediction",
+                data: values,
+                borderColor: "#38bdf8",
+                backgroundColor: "rgba(56,189,248,0.2)",
+                fill: true,
+                tension: 0.4
+            }]
         }
     });
 }
