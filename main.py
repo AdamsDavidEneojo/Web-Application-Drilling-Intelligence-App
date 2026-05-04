@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import numpy as np
 import joblib
 import os
 import gdown
-import uvicorn
 
 app = FastAPI()
 
@@ -41,7 +42,7 @@ model = joblib.load(MODEL_PATH)
 scaler = joblib.load(SCALER_PATH)
 
 # =========================
-# CORS (for frontend)
+# CORS SETUP
 # =========================
 app.add_middleware(
     CORSMiddleware,
@@ -50,6 +51,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# =========================
+# SERVE FRONTEND
+# =========================
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def home():
+    return FileResponse("static/index.html")
 
 # =========================
 # INPUT SCHEMA
@@ -65,20 +75,13 @@ class ROPInput(BaseModel):
     wc_bit_weight: float
 
 # =========================
-# HOME ROUTE
-# =========================
-@app.get("/")
-def home():
-    return {"message": "🚀 ROP Prediction API is running"}
-
-# =========================
 # PREDICTION ROUTE
 # =========================
 @app.post("/predict")
 def predict(data: ROPInput):
     try:
-        # Convert input to numpy array
         input_array = np.array([[
+
             data.ad_rop_sp,
             data.ad_torque_sp,
             data.accum_trip_in,
@@ -87,12 +90,10 @@ def predict(data: ROPInput):
             data.hook_load,
             data.total_gas,
             data.wc_bit_weight
+
         ]])
 
-        # Scale input
         input_scaled = scaler.transform(input_array)
-
-        # Predict
         prediction = model.predict(input_scaled)
 
         return {
@@ -103,10 +104,3 @@ def predict(data: ROPInput):
 
     except Exception as e:
         return {"error": str(e)}
-
-# =========================
-# RUN LOCALLY / RENDER ENTRY
-# =========================
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
