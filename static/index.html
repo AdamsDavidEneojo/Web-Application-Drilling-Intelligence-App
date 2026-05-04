@@ -1,206 +1,124 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>ALPHA ROP Predictor</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-
-        /* LOGO */
-        .logo {
-            position: fixed;
-            top: 20px;
-            right: 30px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            padding: 6px 12px;
-            border-radius: 8px;
-
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-
-            backdrop-filter: blur(6px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-        }
-
-        .logo-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-weight: bold;
-            color: white;
-            font-size: 16px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            color: white;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 80px auto;
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0px 10px 30px rgba(0,0,0,0.2);
-        }
-
-        h1 {
-            text-align: center;
-            color: #2c5364;
-        }
-
-        .section {
-            margin-bottom: 20px;
-        }
-
-        .section h3 {
-            margin-bottom: 10px;
-            color: #444;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        input {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-color: #2c5364;
-            box-shadow: 0 0 5px rgba(44,83,100,0.5);
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: #2c5364;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #1b3a4b;
-        }
-
-        canvas {
-            margin-top: 30px;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #777;
-        }
-    </style>
-</head>
-
-<body>
-
-<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Logo</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ALPHA ROP Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'Segoe UI', sans-serif;
-}
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: white;
+    }
 
-.logo-icon-wrapper {
-    width: 42px;
-    height: 42px;
-    background: linear-gradient(135deg, #4f46e5, #06b6d4);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
+    /* HEADER */
+    .header {
+        text-align: center;
+        padding: 25px;
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
 
-.logo-icon {
-    color: white;
-    font-weight: 700;
-    font-size: 20px;
-}
+    .sub {
+        text-align: center;
+        margin-top: -10px;
+        color: #94a3b8;
+        font-size: 14px;
+    }
 
-.logo-text-wrapper {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
-}
+    /* CONTAINER */
+    .container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 20px;
+    }
 
-.logo-text-primary {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #111827;
-}
+    .card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 20px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        margin-bottom: 20px;
+    }
 
-.logo-text-secondary {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: #6b7280;
-}
+    h3 {
+        margin-bottom: 10px;
+        color: #38bdf8;
+    }
+
+    /* INPUT GRID */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    input {
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+        background: rgba(255,255,255,0.08);
+        color: white;
+    }
+
+    input::placeholder {
+        color: #cbd5e1;
+    }
+
+    /* BUTTON */
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(90deg, #06b6d4, #3b82f6);
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        transform: scale(1.02);
+    }
+
+    /* CHART */
+    canvas {
+        margin-top: 20px;
+        background: rgba(255,255,255,0.03);
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    /* FOOTER */
+    .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 20px;
+    }
 </style>
 </head>
 
 <body>
 
-<!-- LOGO -->
-<div class="logo">
-    <div class="logo-icon-wrapper">
-        <span class="logo-icon">A</span>
-    </div>
-    <div class="logo-text-wrapper">
-        <span class="logo-text-primary">ALPHA</span>
-
-    </div>
-</div>
-
-</body>
-</html>
+<div class="header">🚀 ALPHA ROP AI DASHBOARD</div>
+<div class="sub">Machine Learning Rate of Penetration Prediction System</div>
 
 <div class="container">
-    <h1>🚀 ROP AI Prediction Dashboard</h1>
 
-    <div class="section">
-        <h3>📥 Input Parameters</h3>
+    <!-- INPUTS -->
+    <div class="card">
+        <h3>📥 Drilling Parameters</h3>
+
         <div class="grid">
             <input id="ad_rop_sp" placeholder="AD ROP SP">
             <input id="ad_torque_sp" placeholder="AD Torque SP">
@@ -209,12 +127,16 @@
             <input id="depth_of_cut" placeholder="Depth of Cut">
             <input id="hook_load" placeholder="Hook Load">
             <input id="total_gas" placeholder="Total Gas">
-            <input id="wc_bit_weight" placeholder="WC Bit Weight">
+            <input id="wc_bit_weight" placeholder="Bit Weight">
         </div>
+
+        <button onclick="predict()">🔮 Predict ROP</button>
     </div>
 
-    <div class="section">
+    <!-- OPTIONAL ACTUAL -->
+    <div class="card">
         <h3>📊 Actual Values (Optional)</h3>
+
         <div class="grid">
             <input id="actual_avg" placeholder="Actual ROP Avg">
             <input id="actual_cut" placeholder="Actual ROP Cut">
@@ -222,83 +144,87 @@
         </div>
     </div>
 
-    <button onclick="predict()">Predict ROP</button>
-
-    <canvas id="chart"></canvas>
+    <!-- CHART -->
+    <div class="card">
+        <h3>📈 Prediction Results</h3>
+        <canvas id="chart"></canvas>
+    </div>
 
     <div class="footer">
-        Built with Machine Learning • Petroleum Engineering Project
+        Built for Petroleum Engineering • ML + FastAPI + Render
     </div>
+
 </div>
 
 <script>
 let chart;
 
 async function predict() {
-    try {
-        const dateValue = document.getElementById("datetime").value;
-        const datetimeNumber = dateValue ? new Date(dateValue).getTime() : 0;
 
-        const data = {
-            ad_rop_sp: parseFloat(document.getElementById("ad_rop_sp").value),
-            ad_torque_sp: parseFloat(document.getElementById("ad_torque_sp").value),
-            accum_trip_in: parseFloat(document.getElementById("accum_trip_in").value),
-            datetime: datetimeNumber,
-            depth_of_cut: parseFloat(document.getElementById("depth_of_cut").value),
-            hook_load: parseFloat(document.getElementById("hook_load").value),
-            total_gas: parseFloat(document.getElementById("total_gas").value),
-            wc_bit_weight: parseFloat(document.getElementById("wc_bit_weight").value)
-        };
+    const dateValue = document.getElementById("datetime").value;
+    const datetimeNumber = dateValue ? new Date(dateValue).getTime() : 0;
 
-        const response = await fetch("http://127.0.0.1:8000/predict", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
+    const data = {
+        ad_rop_sp: parseFloat(document.getElementById("ad_rop_sp").value),
+        ad_torque_sp: parseFloat(document.getElementById("ad_torque_sp").value),
+        accum_trip_in: parseFloat(document.getElementById("accum_trip_in").value),
+        datetime: datetimeNumber,
+        depth_of_cut: parseFloat(document.getElementById("depth_of_cut").value),
+        hook_load: parseFloat(document.getElementById("hook_load").value),
+        total_gas: parseFloat(document.getElementById("total_gas").value),
+        wc_bit_weight: parseFloat(document.getElementById("wc_bit_weight").value)
+    };
+
+    const response = await fetch("/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    const predicted = [
+        result.ROP_Average,
+        result.ROP_Cut_Unit,
+        result.ROP_Fast
+    ];
+
+    const actual = [
+        parseFloat(document.getElementById("actual_avg").value) || 0,
+        parseFloat(document.getElementById("actual_cut").value) || 0,
+        parseFloat(document.getElementById("actual_fast").value) || 0
+    ];
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(document.getElementById("chart"), {
+        type: "bar",
+        data: {
+            labels: ["ROP Average", "ROP Cut Unit", "ROP Fast"],
+            datasets: [
+                {
+                    label: "Predicted",
+                    data: predicted,
+                    backgroundColor: "#38bdf8"
+                },
+                {
+                    label: "Actual",
+                    data: actual,
+                    backgroundColor: "#f59e0b"
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: "white" } }
             },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        const predicted = [
-            result.ROP_Average,
-            result.ROP_Cut_Unit,
-            result.ROP_Fast
-        ];
-
-        const actual = [
-            parseFloat(document.getElementById("actual_avg").value) || 0,
-            parseFloat(document.getElementById("actual_cut").value) || 0,
-            parseFloat(document.getElementById("actual_fast").value) || 0
-        ];
-
-        if (chart) chart.destroy();
-
-        const ctx = document.getElementById("chart").getContext("2d");
-
-        chart = new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: ["ROP Average", "ROP Cut Unit", "ROP Fast"],
-                datasets: [
-                    {
-                        label: "Predicted",
-                        data: predicted,
-                        backgroundColor: "#2c5364"
-                    },
-                    {
-                        label: "Actual",
-                        data: actual,
-                        backgroundColor: "#f39c12"
-                    }
-                ]
+            scales: {
+                x: { ticks: { color: "white" } },
+                y: { ticks: { color: "white" } }
             }
-        });
-
-    } catch (error) {
-        alert("Error occurred");
-        console.error(error);
-    }
+        }
+    });
 }
 </script>
 
