@@ -1,4 +1,4 @@
-# 🚀 DepthIQ – Drilling Intelligence Platform
+#  DepthIQ – Drilling Intelligence Platform
 
 **DepthIQ** is a machine learning-powered web application designed to predict **Rate of Penetration (ROP)** in drilling operations using real-time input parameters.
 
@@ -6,15 +6,15 @@ It combines **petroleum engineering knowledge** with **AI/ML models** to provide
 
 ---
 
-## 🌐 Live Demo
+##  Live Demo
 
 👉 https://alpha-rop-ai.onrender.com
 
 ---
 
-## 🧠 Key Features
+##  Key Features
 
-* 🔮 **ROP Prediction (Multi-output)**
+*  **ROP Prediction (Multi-output)**
 
   * ROP Average
   * ROP Cut Unit
@@ -40,7 +40,7 @@ It combines **petroleum engineering knowledge** with **AI/ML models** to provide
 
 ---
 
-## 🏗️ Tech Stack
+##  Tech Stack
 
 **Frontend**
 
@@ -78,7 +78,7 @@ DepthIQ/
 
 ---
 
-## ⚙️ Installation (Run Locally)
+##  Installation (Run Locally)
 
 ### 1. Clone repo
 
@@ -107,7 +107,7 @@ http://127.0.0.1:8000
 
 ---
 
-## 🔌 API Usage
+##  API Usage
 
 ### Endpoint:
 
@@ -142,7 +142,7 @@ POST /predict
 
 ---
 
-## 🧠 Model Info
+##  Model Info
 
 * Model: Multi-output Regression (Random Forest)
 * Inputs: 8 drilling parameters
@@ -151,7 +151,7 @@ POST /predict
 
 ---
 
-## 🚀 Deployment
+##  Deployment
 
 Deployed on Render using:
 
