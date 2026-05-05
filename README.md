@@ -8,7 +8,7 @@ It combines **petroleum engineering knowledge** with **AI/ML models** to provide
 
 ##  Live Demo
 
-👉 https://alpha-rop-ai.onrender.com
+👉 https://depthiq.onrender.com
 
 ---
 
