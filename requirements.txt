@@ -3,4 +3,5 @@ uvicorn
 numpy
 joblib
 scikit-learn
-jinja2
+gdown
+pydantic

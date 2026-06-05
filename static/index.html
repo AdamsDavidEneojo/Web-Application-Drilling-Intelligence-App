@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-<title>DepthIQ | AI Drilling Intelligence</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DepthIQ | Drilling Intelligence</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
-/* ====== BACKGROUND ====== */
 body {
     margin: 0;
     font-family: Arial;
@@ -15,16 +17,17 @@ body {
     color: white;
 }
 
-/* GRID ANIMATION */
+/* GRID BACKGROUND */
 body::before {
     content: "";
     position: fixed;
     width: 100%;
     height: 100%;
     background:
-    linear-gradient(rgba(0,255,255,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,255,255,0.05) 1px, transparent 1px);
+        linear-gradient(rgba(0,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,255,0.05) 1px, transparent 1px);
     background-size: 40px 40px;
+    pointer-events: none;
 }
 
 /* SIDEBAR */
@@ -41,6 +44,7 @@ body::before {
     font-size: 22px;
     font-weight: bold;
     color: #00f5ff;
+    margin-bottom: 20px;
 }
 
 /* MAIN */
@@ -49,12 +53,25 @@ body::before {
     padding: 20px;
 }
 
-/* CARDS */
+/* CARD */
 .card {
     background: rgba(255,255,255,0.05);
     padding: 15px;
     margin: 10px 0;
     border-radius: 12px;
+}
+
+/* GRID */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* INPUT */
+input {
+    padding: 8px;
+    border-radius: 5px;
 }
 
 /* BUTTON */
@@ -63,17 +80,11 @@ button {
     background: #00f5ff;
     border: none;
     cursor: pointer;
+    margin-top: 10px;
 }
 
-/* INPUT GRID */
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-input {
-    padding: 8px;
+canvas {
+    margin-top: 20px;
 }
 
 </style>
@@ -81,33 +92,27 @@ input {
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
     <div class="logo">DEPTHIQ</div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
-<h1>DepthIQ Dashboard</h1>
+<h1>DepthIQ Drilling Intelligence Dashboard</h1>
 
-<!-- KPI -->
-<div class="card">
-    <h3>Predictions</h3>
-    <p id="avg">--</p>
-    <p id="cut">--</p>
-    <p id="fast">--</p>
+<div id="loading" style="color:yellow; display:none;">
+    Model Loading...
 </div>
 
-<!-- INPUTS -->
+<!-- INPUT -->
 <div class="card">
 
 <div class="grid">
 <input id="ad_rop_sp" placeholder="AD ROP SP">
-<input id="ad_torque_sp" placeholder="Torque">
+<input id="ad_torque_sp" placeholder="Torque SP">
 <input id="accum_trip_in" placeholder="Trip In">
 <input id="datetime" type="datetime-local">
-<input id="depth_of_cut" placeholder="Depth Cut">
+<input id="depth_of_cut" placeholder="Depth of Cut">
 <input id="hook_load" placeholder="Hook Load">
 <input id="total_gas" placeholder="Gas">
 <input id="wc_bit_weight" placeholder="Bit Weight">
@@ -118,18 +123,39 @@ input {
 
 </div>
 
+<!-- OUTPUT -->
+<div class="card">
+<p id="avg">--</p>
+<p id="cut">--</p>
+<p id="fast">--</p>
+</div>
+
 <!-- CHARTS -->
-<canvas id="chart"></canvas>
-<canvas id="scatter"></canvas>
+<canvas id="barChart"></canvas>
+<canvas id="scatterChart"></canvas>
 
 </div>
 
 <script>
 
 let lastPrediction = [];
-let chart;
-let scatter;
+let barChart;
+let scatterChart;
 
+/* =====================
+   HEALTH CHECK
+===================== */
+setInterval(async () => {
+    const res = await fetch("/health");
+    const data = await res.json();
+
+    document.getElementById("loading").style.display =
+        data.status === "loading" ? "block" : "none";
+}, 3000);
+
+/* =====================
+   PREDICT
+===================== */
 async function predict() {
 
 const data = {
@@ -143,7 +169,7 @@ total_gas:+total_gas.value,
 wc_bit_weight:+wc_bit_weight.value
 };
 
-const res = await fetch("/api/v1/predict", {
+const res = await fetch("/predict", {
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(data)
@@ -160,6 +186,9 @@ fast.innerText = r.ROP_Fast;
 drawBar(lastPrediction);
 }
 
+/* =====================
+   COMPARE
+===================== */
 function compare(){
 
 const actual = [
@@ -171,11 +200,14 @@ const actual = [
 drawScatter(actual, lastPrediction);
 }
 
+/* =====================
+   BAR CHART
+===================== */
 function drawBar(pred){
 
-if(chart) chart.destroy();
+if(barChart) barChart.destroy();
 
-chart = new Chart(chartCanvas, {
+barChart = new Chart(barChartCanvas, {
 type:"bar",
 data:{
 labels:["Avg","Cut","Fast"],
@@ -188,11 +220,14 @@ backgroundColor:"#00f5ff"
 });
 }
 
+/* =====================
+   SCATTER
+===================== */
 function drawScatter(actual, pred){
 
-if(scatter) scatter.destroy();
+if(scatterChart) scatterChart.destroy();
 
-scatter = new Chart(scatterCanvas, {
+scatterChart = new Chart(scatterChartCanvas, {
 type:"scatter",
 data:{
 datasets:[{
