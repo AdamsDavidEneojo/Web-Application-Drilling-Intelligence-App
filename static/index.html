@@ -1,133 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ALPHA Drilling Intelligence</title>
+
+<title>DepthIQ | AI Drilling Intelligence</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    body {
-        margin: 0;
-        font-family: 'Segoe UI', sans-serif;
-        background: #0b1220;
-        color: white;
-        display: flex;
-    }
 
-    /* SIDEBAR */
-    .sidebar {
-        width: 220px;
-        background: #0f172a;
-        padding: 20px;
-        height: 100vh;
-        position: fixed;
-    }
+/* =========================
+   GLOBAL THEME
+========================= */
 
-    .logo {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 30px;
-        color: #38bdf8;
-    }
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+    display: flex;
+    background: radial-gradient(circle at top left, #0f172a, #020617 70%);
+    overflow-x: hidden;
+}
 
-    .nav div {
-        margin-bottom: 15px;
-        color: #94a3b8;
-        cursor: pointer;
-    }
+/* GRID BACKGROUND */
+body::before {
+    content: "";
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background:
+        linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    animation: moveGrid 20s linear infinite;
+}
 
-    .nav div:hover {
-        color: white;
-    }
+@keyframes moveGrid {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(40px); }
+}
 
-    /* MAIN */
-    .main {
-        margin-left: 240px;
-        padding: 20px;
-        width: 100%;
-    }
+/* =========================
+   SIDEBAR
+========================= */
 
-    /* TOP */
-    .topbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
+.sidebar {
+    width: 240px;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(20px);
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+    border-right: 1px solid rgba(0,245,255,0.1);
+}
 
-    .status {
-        padding: 6px 12px;
-        border-radius: 20px;
-        background: #16a34a;
-        font-size: 12px;
-    }
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+}
 
-    /* CARDS */
-    .cards {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        margin-bottom: 20px;
-    }
+.logo svg {
+    width: 40px;
+    height: 40px;
+    filter: drop-shadow(0 0 10px #00f5ff);
+}
 
-    .card {
-        background: #111827;
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid #1f2937;
-    }
+.logo-text {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
 
-    .value {
-        font-size: 20px;
-        margin-top: 8px;
-        color: #38bdf8;
-    }
+.logo-text span {
+    color: #00f5ff;
+    text-shadow: 0 0 15px #00f5ff;
+}
 
-    /* INPUT */
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
+.nav div {
+    margin-bottom: 15px;
+    color: #94a3b8;
+    cursor: pointer;
+}
 
-    input {
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #1f2937;
-        background: #0b1220;
-        color: white;
-    }
+.nav div:hover {
+    color: #00f5ff;
+}
 
-    button {
-        padding: 12px;
-        margin-top: 10px;
-        border: none;
-        border-radius: 10px;
-        background: linear-gradient(90deg, #06b6d4, #3b82f6);
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-    }
+/* =========================
+   MAIN
+========================= */
 
-    .btn-row {
-        display: flex;
-        gap: 10px;
-        margin-top: 10px;
-    }
+.main {
+    margin-left: 260px;
+    padding: 25px;
+    width: 100%;
+}
 
-    .btn-secondary {
-        background: #1f2937;
-    }
+/* TOP BAR */
 
-    canvas {
-        margin-top: 20px;
-        background: #0b1220;
-        padding: 10px;
-        border-radius: 10px;
-        border: 1px solid #1f2937;
-    }
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #16a34a;
+    font-size: 12px;
+    box-shadow: 0 0 10px #16a34a;
+}
+
+/* HERO */
+
+.hero {
+    margin: 20px 0;
+    padding: 25px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(0,245,255,0.1), rgba(59,130,246,0.1));
+    border: 1px solid rgba(0,245,255,0.2);
+    backdrop-filter: blur(15px);
+}
+
+.hero h1 {
+    font-size: 40px;
+    margin: 0;
+    letter-spacing: 4px;
+}
+
+.hero p {
+    color: #94a3b8;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.card {
+    background: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(0,245,255,0.1);
+    padding: 15px;
+    border-radius: 14px;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(0,245,255,0.15);
+}
+
+.value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #00f5ff;
+}
+
+/* =========================
+   INPUTS
+========================= */
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #1f2937;
+    background: #0b1220;
+    color: white;
+}
+
+/* BUTTONS */
+
+button {
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(90deg, #00f5ff, #2563eb);
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(0,245,255,0.4);
+}
+
+.btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-secondary {
+    background: #1f2937;
+}
+
+/* CANVAS */
+
+canvas {
+    margin-top: 20px;
+    background: rgba(11, 18, 32, 0.7);
+    border-radius: 12px;
+    border: 1px solid rgba(0,245,255,0.1);
+}
+
+/* FEATURE LIST */
+
+ul {
+    color: #94a3b8;
+}
+
 </style>
 </head>
 
@@ -135,7 +235,18 @@
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-    <div class="logo"> ⚡ DepthIQ </div>
+
+    <div class="logo">
+
+        <!-- DEPTHIQ SVG LOGO -->
+        <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" stroke="#00f5ff" stroke-width="5" fill="none"/>
+            <path d="M30 60 L50 20 L70 60 Z" fill="#00f5ff"/>
+        </svg>
+
+        <div class="logo-text">DEPTH<span>IQ</span></div>
+    </div>
+
     <div class="nav">
         <div>Dashboard</div>
         <div>Prediction</div>
@@ -148,11 +259,18 @@
 
     <div class="topbar">
         <h2>Drilling Intelligence Dashboard</h2>
-        <div class="status">● API Online</div>
+        <div class="status">● DEPTHIQ AI ONLINE</div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+        <h1>DEPTHIQ</h1>
+        <p>AI-Powered Multi-Output Rate of Penetration Prediction System</p>
     </div>
 
     <!-- KPI -->
     <div class="cards">
+
         <div class="card">
             <div>ROP Average</div>
             <div class="value" id="avg">--</div>
@@ -167,6 +285,7 @@
             <div>ROP Fast</div>
             <div class="value" id="fast">--</div>
         </div>
+
     </div>
 
     <!-- INPUT -->
@@ -184,11 +303,22 @@
             <input id="wc_bit_weight" placeholder="Bit Weight">
         </div>
 
-        <!-- BUTTONS FIXED -->
         <div class="btn-row">
-            <button onclick="predict()"> Predict</button>
-            <button class="btn-secondary" onclick="compare()">📊 Compare Actual</button>
+            <button onclick="predict()">Predict</button>
+            <button class="btn-secondary" onclick="compare()">Compare</button>
         </div>
+    </div>
+
+    <!-- FEATURE IMPORTANCE -->
+    <div class="card">
+        <h3>Feature Importance</h3>
+        <ul>
+            <li>Depth of Cut (Highest impact)</li>
+            <li>AD ROP SP</li>
+            <li>WC Bit Weight</li>
+            <li>Hook Load</li>
+            <li>AD Torque SP</li>
+        </ul>
     </div>
 
     <!-- ACTUAL INPUT -->
@@ -196,19 +326,22 @@
         <h3>Actual Values</h3>
 
         <div class="grid">
-            <input id="actual_avg" placeholder="Actual ROP Avg">
-            <input id="actual_cut" placeholder="Actual ROP Cut">
-            <input id="actual_fast" placeholder="Actual ROP Fast">
+            <input id="actual_avg" placeholder="Actual Avg">
+            <input id="actual_cut" placeholder="Actual Cut">
+            <input id="actual_fast" placeholder="Actual Fast">
         </div>
     </div>
 
-    <!-- CHART -->
+    <!-- CHARTS -->
     <canvas id="chart"></canvas>
+    <canvas id="scatterChart"></canvas>
 
 </div>
 
 <script>
+
 let chart;
+let scatterChart;
 let lastPrediction = [];
 
 async function predict() {
@@ -238,12 +371,11 @@ async function predict() {
         r.ROP_Fast
     ];
 
-    // update KPI
     document.getElementById("avg").innerText = r.ROP_Average.toFixed(2);
     document.getElementById("cut").innerText = r.ROP_Cut_Unit.toFixed(2);
     document.getElementById("fast").innerText = r.ROP_Fast.toFixed(2);
 
-    drawChart(lastPrediction, null);
+    drawChart(lastPrediction);
 }
 
 function compare() {
@@ -254,32 +386,59 @@ function compare() {
         +document.getElementById("actual_fast").value || 0
     ];
 
-    drawChart(lastPrediction, actual);
+    drawScatter(actual, lastPrediction);
 }
 
-function drawChart(predicted, actual) {
+function drawChart(predicted) {
 
-    if (chart) chart.destroy();
+    if(chart) chart.destroy();
 
     chart = new Chart(document.getElementById("chart"), {
-        type: "bar",
-        data: {
-            labels: ["ROP Avg", "ROP Cut", "ROP Fast"],
-            datasets: [
-                {
-                    label: "Predicted",
-                    data: predicted,
-                    backgroundColor: "#38bdf8"
-                },
-                ...(actual ? [{
-                    label: "Actual",
-                    data: actual,
-                    backgroundColor: "#f59e0b"
-                }] : [])
-            ]
+
+        type:"bar",
+        data:{
+            labels:["ROP Avg","ROP Cut","ROP Fast"],
+            datasets:[{
+                label:"Predicted",
+                data:predicted,
+                backgroundColor:"#00f5ff"
+            }]
         }
     });
 }
+
+function drawScatter(actual, predicted) {
+
+    if(scatterChart) scatterChart.destroy();
+
+    scatterChart = new Chart(document.getElementById("scatterChart"), {
+
+        type:"scatter",
+
+        data:{
+            datasets:[{
+                label:"Actual vs Predicted",
+                data:[
+                    {x:actual[0], y:predicted[0]},
+                    {x:actual[1], y:predicted[1]},
+                    {x:actual[2], y:predicted[2]}
+                ],
+                pointRadius:8
+            }]
+        },
+
+        options:{
+            scales:{
+                x:{title:{display:true,text:"Actual ROP"}, ticks:{color:"white"}, grid:{color:"#1f2937"}},
+                y:{title:{display:true,text:"Predicted ROP"}, ticks:{color:"white"}, grid:{color:"#1f2937"}}
+            },
+            plugins:{
+                legend:{labels:{color:"white"}}
+            }
+        }
+    });
+}
+
 </script>
 
 </body>
