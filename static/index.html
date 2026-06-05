@@ -4,25 +4,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>DepthIQ | Drilling Intelligence Platform</title>
+<title>DepthIQ | Drilling Intelligence</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
-/* =========================
-   BACKGROUND (CONTROL ROOM)
-========================= */
-
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at top, #020617, #000000);
-    color: #e5e7eb;
-    overflow-x: hidden;
+    background: radial-gradient(circle at top, #020617, #000);
+    color: white;
 }
 
-/* Animated grid + glow */
+/* GRID BACKGROUND */
 body::before {
     content: "";
     position: fixed;
@@ -31,124 +26,61 @@ body::before {
         linear-gradient(rgba(0,255,255,0.06) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0,255,255,0.06) 1px, transparent 1px);
     background-size: 50px 50px;
-    animation: gridMove 20s linear infinite;
+    animation: move 20s linear infinite;
     pointer-events: none;
 }
 
-@keyframes gridMove {
+@keyframes move {
     0% { transform: translateY(0); }
     100% { transform: translateY(50px); }
 }
 
-/* =========================
-   SIDEBAR
-========================= */
-
+/* SIDEBAR */
 .sidebar {
-    width: 260px;
+    width: 240px;
     height: 100vh;
     position: fixed;
-    background: rgba(2,6,23,0.8);
-    border-right: 1px solid rgba(0,255,255,0.1);
+    background: rgba(2,6,23,0.85);
     padding: 20px;
-    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(0,255,255,0.1);
 }
 
-/* =========================
-   LOGO (FUTURISTIC)
-========================= */
-
+/* LOGO */
 .logo {
     font-size: 28px;
     font-weight: 900;
-    letter-spacing: 3px;
     color: #00f5ff;
-    text-shadow:
-        0 0 10px #00f5ff,
-        0 0 20px #00f5ff,
-        0 0 40px #00f5ff;
-    margin-bottom: 40px;
-    animation: glow 2s infinite alternate;
+    text-shadow: 0 0 20px #00f5ff;
+    margin-bottom: 30px;
 }
 
-@keyframes glow {
-    from { text-shadow: 0 0 10px #00f5ff; }
-    to { text-shadow: 0 0 25px #00f5ff, 0 0 50px #00f5ff; }
-}
-
-/* NAV */
-.nav {
-    color: #94a3b8;
-}
-
-.nav div {
-    margin: 12px 0;
-    cursor: pointer;
-}
-
-.nav div:hover {
-    color: #00f5ff;
-}
-
-/* =========================
-   MAIN DASHBOARD
-========================= */
-
+/* MAIN */
 .main {
-    margin-left: 280px;
-    padding: 30px;
+    margin-left: 260px;
+    padding: 25px;
 }
 
-/* HEADER */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.status {
-    background: rgba(34,197,94,0.2);
-    color: #22c55e;
-    padding: 6px 12px;
-    border-radius: 20px;
-}
-
-/* =========================
-   KPI CARDS
-========================= */
-
-.kpi {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-top: 20px;
-}
-
+/* CARDS */
 .card {
-    background: rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.05);
     border: 1px solid rgba(0,255,255,0.1);
-    padding: 18px;
-    border-radius: 14px;
-    backdrop-filter: blur(20px);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
 }
 
-.value {
-    font-size: 26px;
-    color: #00f5ff;
-    font-weight: bold;
-}
-
-/* INPUT */
+/* GRID */
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
+/* INPUT */
 input {
     padding: 10px;
     border-radius: 8px;
-    border: 1px solid #1f2937;
+    border: none;
     background: #0b1220;
     color: white;
 }
@@ -157,16 +89,23 @@ input {
 button {
     margin-top: 10px;
     padding: 12px;
+    background: linear-gradient(90deg,#00f5ff,#3b82f6);
     border: none;
-    background: linear-gradient(90deg, #00f5ff, #3b82f6);
-    color: black;
     font-weight: bold;
     cursor: pointer;
-    border-radius: 10px;
 }
 
-canvas {
-    margin-top: 20px;
+/* KPI */
+.kpi {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.value {
+    color: #00f5ff;
+    font-size: 22px;
+    font-weight: bold;
 }
 
 </style>
@@ -175,53 +114,55 @@ canvas {
 <body>
 
 <div class="sidebar">
-
 <div class="logo">DEPTHIQ</div>
-
-<div class="nav">
-<div>Dashboard</div>
-<div>Prediction</div>
-<div>Analytics</div>
-<div>Model Health</div>
-</div>
-
 </div>
 
 <div class="main">
 
-<div class="header">
-<h1>Drilling Intelligence Control Room</h1>
-<div class="status">● SYSTEM ONLINE</div>
-</div>
+<h2>Drilling Intelligence Dashboard</h2>
 
 <!-- KPI -->
 <div class="kpi">
-<div class="card"><div>ROP Avg</div><div class="value" id="avg">--</div></div>
-<div class="card"><div>ROP Cut</div><div class="value" id="cut">--</div></div>
-<div class="card"><div>ROP Fast</div><div class="value" id="fast">--</div></div>
+<div class="card">Avg <div class="value" id="avg">--</div></div>
+<div class="card">Cut <div class="value" id="cut">--</div></div>
+<div class="card">Fast <div class="value" id="fast">--</div></div>
 </div>
 
 <!-- INPUT -->
 <div class="card">
-
 <div class="grid">
 <input id="ad_rop_sp" placeholder="AD ROP SP">
 <input id="ad_torque_sp" placeholder="Torque SP">
 <input id="accum_trip_in" placeholder="Trip In">
 <input id="datetime" type="datetime-local">
-<input id="depth_of_cut" placeholder="Depth of Cut">
+<input id="depth_of_cut" placeholder="Depth">
 <input id="hook_load" placeholder="Hook Load">
 <input id="total_gas" placeholder="Gas">
 <input id="wc_bit_weight" placeholder="Bit Weight">
 </div>
 
-<button onclick="predict()">RUN PREDICTION</button>
+<button onclick="predict()">Predict</button>
+</div>
 
+<!-- ACTUAL -->
+<div class="card">
+<div class="grid">
+<input id="actual_avg" placeholder="Actual Avg">
+<input id="actual_cut" placeholder="Actual Cut">
+<input id="actual_fast" placeholder="Actual Fast">
+</div>
+
+<button onclick="compare()">Compare</button>
 </div>
 
 <!-- CHARTS -->
-<div class="card"><canvas id="bar"></canvas></div>
-<div class="card"><canvas id="scatter"></canvas></div>
+<div class="card">
+<canvas id="bar"></canvas>
+</div>
+
+<div class="card">
+<canvas id="scatter"></canvas>
+</div>
 
 </div>
 
@@ -229,12 +170,6 @@ canvas {
 
 let last = [];
 let bar, scatter;
-
-/* HEALTH */
-setInterval(async ()=>{
-const r = await fetch("/health");
-const d = await r.json();
-},3000);
 
 /* PREDICT */
 async function predict(){
@@ -271,6 +206,33 @@ type:"bar",
 data:{
 labels:["Avg","Cut","Fast"],
 datasets:[{data:last,backgroundColor:"#00f5ff"}]
+}
+});
+}
+
+/* COMPARE */
+function compare(){
+
+const actual = [
++actual_avg.value,
++actual_cut.value,
++actual_fast.value
+];
+
+if(scatter) scatter.destroy();
+
+scatter = new Chart(document.getElementById("scatter"),{
+type:"scatter",
+data:{
+datasets:[{
+label:"Actual vs Predicted",
+data:[
+{x:actual[0],y:last[0]},
+{x:actual[1],y:last[1]},
+{x:actual[2],y:last[2]}
+],
+pointRadius:8
+}]
 }
 });
 }
