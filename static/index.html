@@ -9,41 +9,92 @@
 
 <style>
 
+/* =========================
+   BASE THEME
+========================= */
 body{
 margin:0;
 font-family:Segoe UI;
-background:#0b1220;
+background: radial-gradient(circle at top, #050816, #000);
 color:white;
+overflow-x:hidden;
 }
 
+/* animated grid */
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:
+linear-gradient(rgba(0,255,255,0.05) 1px, transparent 1px),
+linear-gradient(90deg, rgba(0,255,255,0.05) 1px, transparent 1px);
+background-size:50px 50px;
+animation:move 18s linear infinite;
+pointer-events:none;
+}
+
+@keyframes move{
+0%{transform:translateY(0);}
+100%{transform:translateY(50px);}
+}
+
+/* =========================
+   SIDEBAR
+========================= */
 .sidebar{
 position:fixed;
 width:240px;
 height:100vh;
-background:#0f172a;
+background:rgba(2,6,23,0.9);
+border-right:1px solid rgba(0,255,255,0.15);
 padding:20px;
+backdrop-filter: blur(10px);
 }
 
+/* =========================
+   DEPTHIQ GLOW LOGO
+========================= */
 .logo{
-font-size:26px;
-font-weight:800;
+font-size:30px;
+font-weight:900;
+letter-spacing:4px;
 color:#00f5ff;
-margin-bottom:30px;
+text-shadow:
+0 0 10px #00f5ff,
+0 0 25px #00f5ff,
+0 0 50px #00f5ff;
+animation:glow 2s infinite alternate;
+margin-bottom:40px;
 }
 
+@keyframes glow{
+0%{text-shadow:0 0 10px #00f5ff;}
+100%{text-shadow:0 0 20px #00f5ff,0 0 40px #00f5ff;}
+}
+
+/* =========================
+   MAIN
+========================= */
 .main{
 margin-left:260px;
-padding:20px;
+padding:25px;
 }
 
+/* =========================
+   CARDS
+========================= */
 .card{
-background:#111827;
-padding:15px;
-border-radius:12px;
+background:rgba(255,255,255,0.04);
+border:1px solid rgba(0,255,255,0.15);
+padding:16px;
+border-radius:14px;
 margin-bottom:15px;
-border:1px solid #1f2937;
+backdrop-filter: blur(10px);
 }
 
+/* =========================
+   INPUT GRID
+========================= */
 .grid{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -53,20 +104,41 @@ gap:10px;
 input{
 padding:10px;
 border-radius:8px;
-border:1px solid #1f2937;
+border:1px solid rgba(0,255,255,0.2);
 background:#0b1220;
 color:white;
+outline:none;
 }
 
+input:focus{
+border:1px solid #00f5ff;
+box-shadow:0 0 10px #00f5ff33;
+}
+
+/* =========================
+   BUTTONS (GLOW FIXED)
+========================= */
 button{
-margin-top:10px;
+margin-top:12px;
 padding:12px;
-background:#00f5ff;
 border:none;
-font-weight:bold;
+border-radius:10px;
 cursor:pointer;
+font-weight:bold;
+color:#001018;
+background:linear-gradient(90deg,#00f5ff,#3b82f6);
+box-shadow:0 0 15px rgba(0,245,255,0.3);
+transition:0.2s ease-in-out;
 }
 
+button:hover{
+transform:scale(1.03);
+box-shadow:0 0 25px rgba(0,245,255,0.6);
+}
+
+/* =========================
+   KPI
+========================= */
 .kpi{
 display:grid;
 grid-template-columns:repeat(3,1fr);
@@ -77,6 +149,11 @@ gap:10px;
 color:#00f5ff;
 font-size:22px;
 font-weight:bold;
+text-shadow:0 0 10px #00f5ff;
+}
+
+h2{
+color:#e2e8f0;
 }
 
 </style>
@@ -94,9 +171,9 @@ font-weight:bold;
 
 <!-- KPI -->
 <div class="kpi">
-<div class="card">Avg <div class="value" id="avg">--</div></div>
-<div class="card">Cut <div class="value" id="cut">--</div></div>
-<div class="card">Fast <div class="value" id="fast">--</div></div>
+<div class="card">ROP Avg <div class="value" id="avg">--</div></div>
+<div class="card">ROP Cut <div class="value" id="cut">--</div></div>
+<div class="card">ROP Fast <div class="value" id="fast">--</div></div>
 </div>
 
 <!-- INPUT -->
@@ -113,14 +190,14 @@ font-weight:bold;
 <input id="wc_bit_weight" placeholder="Bit Weight">
 </div>
 
-<button onclick="predict()">Predict</button>
+<button onclick="predict()">RUN PREDICTION</button>
 
 </div>
 
-<!-- ACTUAL VALUES -->
+<!-- ACTUAL -->
 <div class="card">
 
-<h3>Actual Values (Comparison)</h3>
+<h3 style="color:#00f5ff;">Actual vs Predicted Comparison</h3>
 
 <div class="grid">
 <input id="actual_avg" placeholder="Actual Avg">
@@ -128,7 +205,7 @@ font-weight:bold;
 <input id="actual_fast" placeholder="Actual Fast">
 </div>
 
-<button onclick="compare()">Compare Actual vs Predicted</button>
+<button onclick="compare()">COMPARE RESULTS</button>
 
 </div>
 
@@ -141,15 +218,15 @@ font-weight:bold;
 
 <script>
 
-let last = [];
+let last=[];
 let chart;
 
-/* =====================
+/* =========================
    PREDICT
-===================== */
+========================= */
 async function predict(){
 
-const data = {
+const data={
 ad_rop_sp:+ad_rop_sp.value,
 ad_torque_sp:+ad_torque_sp.value,
 accum_trip_in:+accum_trip_in.value,
@@ -160,45 +237,45 @@ total_gas:+total_gas.value,
 wc_bit_weight:+wc_bit_weight.value
 };
 
-const res = await fetch("/predict",{
+const res=await fetch("/predict",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(data)
 });
 
-const r = await res.json();
+const r=await res.json();
 
-last = [r.ROP_Average,r.ROP_Cut_Unit,r.ROP_Fast];
+last=[r.ROP_Average,r.ROP_Cut_Unit,r.ROP_Fast];
 
-avg.innerText = r.ROP_Average.toFixed(2);
-cut.innerText = r.ROP_Cut_Unit.toFixed(2);
-fast.innerText = r.ROP_Fast.toFixed(2);
+avg.innerText=r.ROP_Average.toFixed(2);
+cut.innerText=r.ROP_Cut_Unit.toFixed(2);
+fast.innerText=r.ROP_Fast.toFixed(2);
 
 drawChart(null);
 }
 
-/* =====================
-   FIXED COMPARISON (NO SCATTER)
-===================== */
+/* =========================
+   COMPARE
+========================= */
 function compare(){
 
-const actual = [
-+actual_avg.value || 0,
-+actual_cut.value || 0,
-+actual_fast.value || 0
+const actual=[
++actual_avg.value||0,
++actual_cut.value||0,
++actual_fast.value||0
 ];
 
 drawChart(actual);
 }
 
-/* =====================
-   PROFESSIONAL BAR COMPARISON
-===================== */
+/* =========================
+   CHART
+========================= */
 function drawChart(actual){
 
 if(chart) chart.destroy();
 
-chart = new Chart(document.getElementById("chart"),{
+chart=new Chart(document.getElementById("chart"),{
 type:"bar",
 data:{
 labels:["ROP Avg","ROP Cut","ROP Fast"],
@@ -210,11 +287,11 @@ data:last,
 backgroundColor:"#00f5ff"
 },
 
-...(actual ? [{
+...(actual?[{
 label:"Actual",
 data:actual,
 backgroundColor:"#f59e0b"
-}] : [])
+}]:[])
 
 ]
 }
