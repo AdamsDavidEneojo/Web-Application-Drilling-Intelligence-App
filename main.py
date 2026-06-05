@@ -9,10 +9,10 @@ import os
 import gdown
 import threading
 
-app = FastAPI()
+app = FastAPI(title="DepthIQ AI System")
 
 # =========================
-# GOOGLE DRIVE FILE IDS
+# MODEL IDS
 # =========================
 MODEL_ID = "1HSGTNa48Ft3dgnhtDPufw321fphWf4kS"
 SCALER_ID = "1kPLWoJbFaU3jC3jSENalLo1dSRz25mjp"
@@ -20,14 +20,11 @@ SCALER_ID = "1kPLWoJbFaU3jC3jSENalLo1dSRz25mjp"
 MODEL_PATH = "rop_model.pkl"
 SCALER_PATH = "scaler.pkl"
 
-# =========================
-# GLOBAL MODEL VARIABLES
-# =========================
 model = None
 scaler = None
 
 # =========================
-# DOWNLOAD FUNCTION
+# DOWNLOAD
 # =========================
 def download_file(file_id, output):
     if not os.path.exists(output):
@@ -35,7 +32,7 @@ def download_file(file_id, output):
         gdown.download(url, output, quiet=False)
 
 # =========================
-# ASYNC MODEL LOADER
+# LOAD MODELS (ASYNC)
 # =========================
 def load_models():
     global model, scaler
@@ -73,12 +70,10 @@ def home():
 # =========================
 @app.get("/health")
 def health():
-    if model is None or scaler is None:
-        return {"status": "loading"}
-    return {"status": "ready"}
+    return {"status": "loading" if model is None else "ready"}
 
 # =========================
-# INPUT SCHEMA
+# INPUT MODEL
 # =========================
 class ROPInput(BaseModel):
     ad_rop_sp: float
@@ -91,15 +86,15 @@ class ROPInput(BaseModel):
     wc_bit_weight: float
 
 # =========================
-# PREDICTION ENDPOINT
+# PREDICT
 # =========================
 @app.post("/predict")
 def predict(data: ROPInput):
 
-    if model is None or scaler is None:
-        return {"error": "Model still loading"}
+    if model is None:
+        return {"error": "Model loading..."}
 
-    input_array = np.array([[
+    x = np.array([[
         data.ad_rop_sp,
         data.ad_torque_sp,
         data.accum_trip_in,
@@ -110,11 +105,11 @@ def predict(data: ROPInput):
         data.wc_bit_weight
     ]])
 
-    input_scaled = scaler.transform(input_array)
-    prediction = model.predict(input_scaled)
+    x = scaler.transform(x)
+    pred = model.predict(x)
 
     return {
-        "ROP_Average": float(prediction[0][0]),
-        "ROP_Cut_Unit": float(prediction[0][1]),
-        "ROP_Fast": float(prediction[0][2])
+        "ROP_Average": float(pred[0][0]),
+        "ROP_Cut_Unit": float(pred[0][1]),
+        "ROP_Fast": float(pred[0][2])
     }
