@@ -1,111 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>DepthIQ | Drilling Intelligence</title>
+<title>DepthIQ</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
-body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at top, #020617, #000);
-    color: white;
+body{
+margin:0;
+font-family:Segoe UI;
+background:#0b1220;
+color:white;
 }
 
-/* GRID BACKGROUND */
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background:
-        linear-gradient(rgba(0,255,255,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,255,255,0.06) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: move 20s linear infinite;
-    pointer-events: none;
+.sidebar{
+position:fixed;
+width:240px;
+height:100vh;
+background:#0f172a;
+padding:20px;
 }
 
-@keyframes move {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(50px); }
+.logo{
+font-size:26px;
+font-weight:800;
+color:#00f5ff;
+margin-bottom:30px;
 }
 
-/* SIDEBAR */
-.sidebar {
-    width: 240px;
-    height: 100vh;
-    position: fixed;
-    background: rgba(2,6,23,0.85);
-    padding: 20px;
-    border-right: 1px solid rgba(0,255,255,0.1);
+.main{
+margin-left:260px;
+padding:20px;
 }
 
-/* LOGO */
-.logo {
-    font-size: 28px;
-    font-weight: 900;
-    color: #00f5ff;
-    text-shadow: 0 0 20px #00f5ff;
-    margin-bottom: 30px;
+.card{
+background:#111827;
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+border:1px solid #1f2937;
 }
 
-/* MAIN */
-.main {
-    margin-left: 260px;
-    padding: 25px;
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
 }
 
-/* CARDS */
-.card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(0,255,255,0.1);
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 15px;
+input{
+padding:10px;
+border-radius:8px;
+border:1px solid #1f2937;
+background:#0b1220;
+color:white;
 }
 
-/* GRID */
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+button{
+margin-top:10px;
+padding:12px;
+background:#00f5ff;
+border:none;
+font-weight:bold;
+cursor:pointer;
 }
 
-/* INPUT */
-input {
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: #0b1220;
-    color: white;
+.kpi{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
 }
 
-/* BUTTON */
-button {
-    margin-top: 10px;
-    padding: 12px;
-    background: linear-gradient(90deg,#00f5ff,#3b82f6);
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* KPI */
-.kpi {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
-
-.value {
-    color: #00f5ff;
-    font-size: 22px;
-    font-weight: bold;
+.value{
+color:#00f5ff;
+font-size:22px;
+font-weight:bold;
 }
 
 </style>
@@ -130,6 +101,7 @@ button {
 
 <!-- INPUT -->
 <div class="card">
+
 <div class="grid">
 <input id="ad_rop_sp" placeholder="AD ROP SP">
 <input id="ad_torque_sp" placeholder="Torque SP">
@@ -142,26 +114,27 @@ button {
 </div>
 
 <button onclick="predict()">Predict</button>
+
 </div>
 
-<!-- ACTUAL -->
+<!-- ACTUAL VALUES -->
 <div class="card">
+
+<h3>Actual Values (Comparison)</h3>
+
 <div class="grid">
 <input id="actual_avg" placeholder="Actual Avg">
 <input id="actual_cut" placeholder="Actual Cut">
 <input id="actual_fast" placeholder="Actual Fast">
 </div>
 
-<button onclick="compare()">Compare</button>
+<button onclick="compare()">Compare Actual vs Predicted</button>
+
 </div>
 
-<!-- CHARTS -->
+<!-- CHART -->
 <div class="card">
-<canvas id="bar"></canvas>
-</div>
-
-<div class="card">
-<canvas id="scatter"></canvas>
+<canvas id="chart"></canvas>
 </div>
 
 </div>
@@ -169,9 +142,11 @@ button {
 <script>
 
 let last = [];
-let bar, scatter;
+let chart;
 
-/* PREDICT */
+/* =====================
+   PREDICT
+===================== */
 async function predict(){
 
 const data = {
@@ -199,40 +174,49 @@ avg.innerText = r.ROP_Average.toFixed(2);
 cut.innerText = r.ROP_Cut_Unit.toFixed(2);
 fast.innerText = r.ROP_Fast.toFixed(2);
 
-/* BAR */
-if(bar) bar.destroy();
-bar = new Chart(document.getElementById("bar"),{
-type:"bar",
-data:{
-labels:["Avg","Cut","Fast"],
-datasets:[{data:last,backgroundColor:"#00f5ff"}]
-}
-});
+drawChart(null);
 }
 
-/* COMPARE */
+/* =====================
+   FIXED COMPARISON (NO SCATTER)
+===================== */
 function compare(){
 
 const actual = [
-+actual_avg.value,
-+actual_cut.value,
-+actual_fast.value
++actual_avg.value || 0,
++actual_cut.value || 0,
++actual_fast.value || 0
 ];
 
-if(scatter) scatter.destroy();
+drawChart(actual);
+}
 
-scatter = new Chart(document.getElementById("scatter"),{
-type:"scatter",
+/* =====================
+   PROFESSIONAL BAR COMPARISON
+===================== */
+function drawChart(actual){
+
+if(chart) chart.destroy();
+
+chart = new Chart(document.getElementById("chart"),{
+type:"bar",
 data:{
-datasets:[{
-label:"Actual vs Predicted",
-data:[
-{x:actual[0],y:last[0]},
-{x:actual[1],y:last[1]},
-{x:actual[2],y:last[2]}
-],
-pointRadius:8
-}]
+labels:["ROP Avg","ROP Cut","ROP Fast"],
+datasets:[
+
+{
+label:"Predicted",
+data:last,
+backgroundColor:"#00f5ff"
+},
+
+...(actual ? [{
+label:"Actual",
+data:actual,
+backgroundColor:"#f59e0b"
+}] : [])
+
+]
 }
 });
 }
