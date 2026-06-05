@@ -9,7 +9,7 @@ import os
 import gdown
 import threading
 
-app = FastAPI(title="DepthIQ AI System")
+app = FastAPI(title="DepthIQ")
 
 # =========================
 # MODEL IDS
@@ -24,7 +24,7 @@ model = None
 scaler = None
 
 # =========================
-# DOWNLOAD
+# DOWNLOAD FUNCTION
 # =========================
 def download_file(file_id, output):
     if not os.path.exists(output):
@@ -32,14 +32,12 @@ def download_file(file_id, output):
         gdown.download(url, output, quiet=False)
 
 # =========================
-# LOAD MODELS (ASYNC)
+# LOAD MODELS (ASYNC SAFE)
 # =========================
 def load_models():
     global model, scaler
-
     download_file(MODEL_ID, MODEL_PATH)
     download_file(SCALER_ID, SCALER_PATH)
-
     model = joblib.load(MODEL_PATH)
     scaler = joblib.load(SCALER_PATH)
 
@@ -73,7 +71,7 @@ def health():
     return {"status": "loading" if model is None else "ready"}
 
 # =========================
-# INPUT MODEL
+# INPUT SCHEMA
 # =========================
 class ROPInput(BaseModel):
     ad_rop_sp: float
@@ -92,7 +90,7 @@ class ROPInput(BaseModel):
 def predict(data: ROPInput):
 
     if model is None:
-        return {"error": "Model loading..."}
+        return {"error": "Model still loading"}
 
     x = np.array([[
         data.ad_rop_sp,
