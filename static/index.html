@@ -1,231 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
 <title>DepthIQ | AI Drilling Intelligence</title>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
-/* =========================
-   GLOBAL THEME
-========================= */
-
+/* ====== BACKGROUND ====== */
 body {
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: Arial;
+    background: radial-gradient(circle, #0f172a, #020617);
     color: white;
-    display: flex;
-    background: radial-gradient(circle at top left, #0f172a, #020617 70%);
-    overflow-x: hidden;
 }
 
-/* GRID BACKGROUND */
+/* GRID ANIMATION */
 body::before {
     content: "";
     position: fixed;
     width: 100%;
     height: 100%;
     background:
-        linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(0,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,255,0.05) 1px, transparent 1px);
     background-size: 40px 40px;
-    pointer-events: none;
-    animation: moveGrid 20s linear infinite;
 }
 
-@keyframes moveGrid {
-    0% { transform: translateY(0px); }
-    100% { transform: translateY(40px); }
-}
-
-/* =========================
-   SIDEBAR
-========================= */
-
+/* SIDEBAR */
 .sidebar {
-    width: 240px;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(20px);
-    padding: 20px;
+    width: 220px;
     height: 100vh;
     position: fixed;
-    border-right: 1px solid rgba(0,245,255,0.1);
+    background: rgba(15,23,42,0.7);
+    padding: 20px;
 }
 
+/* LOGO */
 .logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 40px;
-}
-
-.logo svg {
-    width: 40px;
-    height: 40px;
-    filter: drop-shadow(0 0 10px #00f5ff);
-}
-
-.logo-text {
     font-size: 22px;
-    font-weight: 900;
-    letter-spacing: 2px;
-}
-
-.logo-text span {
-    color: #00f5ff;
-    text-shadow: 0 0 15px #00f5ff;
-}
-
-.nav div {
-    margin-bottom: 15px;
-    color: #94a3b8;
-    cursor: pointer;
-}
-
-.nav div:hover {
-    color: #00f5ff;
-}
-
-/* =========================
-   MAIN
-========================= */
-
-.main {
-    margin-left: 260px;
-    padding: 25px;
-    width: 100%;
-}
-
-/* TOP BAR */
-
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.status {
-    padding: 6px 12px;
-    border-radius: 20px;
-    background: #16a34a;
-    font-size: 12px;
-    box-shadow: 0 0 10px #16a34a;
-}
-
-/* HERO */
-
-.hero {
-    margin: 20px 0;
-    padding: 25px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, rgba(0,245,255,0.1), rgba(59,130,246,0.1));
-    border: 1px solid rgba(0,245,255,0.2);
-    backdrop-filter: blur(15px);
-}
-
-.hero h1 {
-    font-size: 40px;
-    margin: 0;
-    letter-spacing: 4px;
-}
-
-.hero p {
-    color: #94a3b8;
-}
-
-/* =========================
-   CARDS
-========================= */
-
-.cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-}
-
-.card {
-    background: rgba(17, 24, 39, 0.6);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(0,245,255,0.1);
-    padding: 15px;
-    border-radius: 14px;
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 20px rgba(0,245,255,0.15);
-}
-
-.value {
-    font-size: 28px;
     font-weight: bold;
     color: #00f5ff;
 }
 
-/* =========================
-   INPUTS
-========================= */
+/* MAIN */
+.main {
+    margin-left: 240px;
+    padding: 20px;
+}
 
+/* CARDS */
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 12px;
+}
+
+/* BUTTON */
+button {
+    padding: 10px;
+    background: #00f5ff;
+    border: none;
+    cursor: pointer;
+}
+
+/* INPUT GRID */
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
 input {
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #1f2937;
-    background: #0b1220;
-    color: white;
-}
-
-/* BUTTONS */
-
-button {
-    padding: 12px 18px;
-    border-radius: 10px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    background: linear-gradient(90deg, #00f5ff, #2563eb);
-    transition: 0.3s;
-}
-
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 20px rgba(0,245,255,0.4);
-}
-
-.btn-row {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.btn-secondary {
-    background: #1f2937;
-}
-
-/* CANVAS */
-
-canvas {
-    margin-top: 20px;
-    background: rgba(11, 18, 32, 0.7);
-    border-radius: 12px;
-    border: 1px solid rgba(0,245,255,0.1);
-}
-
-/* FEATURE LIST */
-
-ul {
-    color: #94a3b8;
+    padding: 8px;
 }
 
 </style>
@@ -235,208 +83,129 @@ ul {
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-
-    <div class="logo">
-
-        <!-- DEPTHIQ SVG LOGO -->
-        <svg viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="40" stroke="#00f5ff" stroke-width="5" fill="none"/>
-            <path d="M30 60 L50 20 L70 60 Z" fill="#00f5ff"/>
-        </svg>
-
-        <div class="logo-text">DEPTH<span>IQ</span></div>
-    </div>
-
-    <div class="nav">
-        <div>Dashboard</div>
-        <div>Prediction</div>
-        <div>Analytics</div>
-    </div>
+    <div class="logo">DEPTHIQ</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-    <div class="topbar">
-        <h2>Drilling Intelligence Dashboard</h2>
-        <div class="status">● DEPTHIQ AI ONLINE</div>
-    </div>
+<h1>DepthIQ Dashboard</h1>
 
-    <!-- HERO -->
-    <div class="hero">
-        <h1>DEPTHIQ</h1>
-        <p>AI-Powered Multi-Output Rate of Penetration Prediction System</p>
-    </div>
+<!-- KPI -->
+<div class="card">
+    <h3>Predictions</h3>
+    <p id="avg">--</p>
+    <p id="cut">--</p>
+    <p id="fast">--</p>
+</div>
 
-    <!-- KPI -->
-    <div class="cards">
+<!-- INPUTS -->
+<div class="card">
 
-        <div class="card">
-            <div>ROP Average</div>
-            <div class="value" id="avg">--</div>
-        </div>
+<div class="grid">
+<input id="ad_rop_sp" placeholder="AD ROP SP">
+<input id="ad_torque_sp" placeholder="Torque">
+<input id="accum_trip_in" placeholder="Trip In">
+<input id="datetime" type="datetime-local">
+<input id="depth_of_cut" placeholder="Depth Cut">
+<input id="hook_load" placeholder="Hook Load">
+<input id="total_gas" placeholder="Gas">
+<input id="wc_bit_weight" placeholder="Bit Weight">
+</div>
 
-        <div class="card">
-            <div>ROP Cut Unit</div>
-            <div class="value" id="cut">--</div>
-        </div>
+<button onclick="predict()">Predict</button>
+<button onclick="compare()">Compare</button>
 
-        <div class="card">
-            <div>ROP Fast</div>
-            <div class="value" id="fast">--</div>
-        </div>
+</div>
 
-    </div>
-
-    <!-- INPUT -->
-    <div class="card">
-        <h3>Input Parameters</h3>
-
-        <div class="grid">
-            <input id="ad_rop_sp" placeholder="AD ROP SP">
-            <input id="ad_torque_sp" placeholder="Torque SP">
-            <input id="accum_trip_in" placeholder="Trip In">
-            <input id="datetime" type="datetime-local">
-            <input id="depth_of_cut" placeholder="Depth of Cut">
-            <input id="hook_load" placeholder="Hook Load">
-            <input id="total_gas" placeholder="Total Gas">
-            <input id="wc_bit_weight" placeholder="Bit Weight">
-        </div>
-
-        <div class="btn-row">
-            <button onclick="predict()">Predict</button>
-            <button class="btn-secondary" onclick="compare()">Compare</button>
-        </div>
-    </div>
-
-    <!-- FEATURE IMPORTANCE -->
-    <div class="card">
-        <h3>Feature Importance</h3>
-        <ul>
-            <li>Depth of Cut (Highest impact)</li>
-            <li>AD ROP SP</li>
-            <li>WC Bit Weight</li>
-            <li>Hook Load</li>
-            <li>AD Torque SP</li>
-        </ul>
-    </div>
-
-    <!-- ACTUAL INPUT -->
-    <div class="card">
-        <h3>Actual Values</h3>
-
-        <div class="grid">
-            <input id="actual_avg" placeholder="Actual Avg">
-            <input id="actual_cut" placeholder="Actual Cut">
-            <input id="actual_fast" placeholder="Actual Fast">
-        </div>
-    </div>
-
-    <!-- CHARTS -->
-    <canvas id="chart"></canvas>
-    <canvas id="scatterChart"></canvas>
+<!-- CHARTS -->
+<canvas id="chart"></canvas>
+<canvas id="scatter"></canvas>
 
 </div>
 
 <script>
 
-let chart;
-let scatterChart;
 let lastPrediction = [];
+let chart;
+let scatter;
 
 async function predict() {
 
-    const data = {
-        ad_rop_sp: +document.getElementById("ad_rop_sp").value,
-        ad_torque_sp: +document.getElementById("ad_torque_sp").value,
-        accum_trip_in: +document.getElementById("accum_trip_in").value,
-        datetime: new Date(document.getElementById("datetime").value).getTime(),
-        depth_of_cut: +document.getElementById("depth_of_cut").value,
-        hook_load: +document.getElementById("hook_load").value,
-        total_gas: +document.getElementById("total_gas").value,
-        wc_bit_weight: +document.getElementById("wc_bit_weight").value
-    };
+const data = {
+ad_rop_sp:+ad_rop_sp.value,
+ad_torque_sp:+ad_torque_sp.value,
+accum_trip_in:+accum_trip_in.value,
+datetime:new Date(datetime.value).getTime(),
+depth_of_cut:+depth_of_cut.value,
+hook_load:+hook_load.value,
+total_gas:+total_gas.value,
+wc_bit_weight:+wc_bit_weight.value
+};
 
-    const res = await fetch("/predict", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
-    });
+const res = await fetch("/api/v1/predict", {
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
 
-    const r = await res.json();
+const r = await res.json();
 
-    lastPrediction = [
-        r.ROP_Average,
-        r.ROP_Cut_Unit,
-        r.ROP_Fast
-    ];
+lastPrediction = [r.ROP_Average, r.ROP_Cut_Unit, r.ROP_Fast];
 
-    document.getElementById("avg").innerText = r.ROP_Average.toFixed(2);
-    document.getElementById("cut").innerText = r.ROP_Cut_Unit.toFixed(2);
-    document.getElementById("fast").innerText = r.ROP_Fast.toFixed(2);
+avg.innerText = r.ROP_Average;
+cut.innerText = r.ROP_Cut_Unit;
+fast.innerText = r.ROP_Fast;
 
-    drawChart(lastPrediction);
+drawBar(lastPrediction);
 }
 
-function compare() {
+function compare(){
 
-    const actual = [
-        +document.getElementById("actual_avg").value || 0,
-        +document.getElementById("actual_cut").value || 0,
-        +document.getElementById("actual_fast").value || 0
-    ];
+const actual = [
++prompt("Actual Avg"),
++prompt("Actual Cut"),
++prompt("Actual Fast")
+];
 
-    drawScatter(actual, lastPrediction);
+drawScatter(actual, lastPrediction);
 }
 
-function drawChart(predicted) {
+function drawBar(pred){
 
-    if(chart) chart.destroy();
+if(chart) chart.destroy();
 
-    chart = new Chart(document.getElementById("chart"), {
-
-        type:"bar",
-        data:{
-            labels:["ROP Avg","ROP Cut","ROP Fast"],
-            datasets:[{
-                label:"Predicted",
-                data:predicted,
-                backgroundColor:"#00f5ff"
-            }]
-        }
-    });
+chart = new Chart(chartCanvas, {
+type:"bar",
+data:{
+labels:["Avg","Cut","Fast"],
+datasets:[{
+label:"Predicted",
+data:pred,
+backgroundColor:"#00f5ff"
+}]
+}
+});
 }
 
-function drawScatter(actual, predicted) {
+function drawScatter(actual, pred){
 
-    if(scatterChart) scatterChart.destroy();
+if(scatter) scatter.destroy();
 
-    scatterChart = new Chart(document.getElementById("scatterChart"), {
-
-        type:"scatter",
-
-        data:{
-            datasets:[{
-                label:"Actual vs Predicted",
-                data:[
-                    {x:actual[0], y:predicted[0]},
-                    {x:actual[1], y:predicted[1]},
-                    {x:actual[2], y:predicted[2]}
-                ],
-                pointRadius:8
-            }]
-        },
-
-        options:{
-            scales:{
-                x:{title:{display:true,text:"Actual ROP"}, ticks:{color:"white"}, grid:{color:"#1f2937"}},
-                y:{title:{display:true,text:"Predicted ROP"}, ticks:{color:"white"}, grid:{color:"#1f2937"}}
-            },
-            plugins:{
-                legend:{labels:{color:"white"}}
-            }
-        }
-    });
+scatter = new Chart(scatterCanvas, {
+type:"scatter",
+data:{
+datasets:[{
+label:"Actual vs Predicted",
+data:[
+{x:actual[0],y:pred[0]},
+{x:actual[1],y:pred[1]},
+{x:actual[2],y:pred[2]}
+],
+pointRadius:8
+}]
+}
+});
 }
 
 </script>
