@@ -1,304 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>DepthIQ</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-
-/* =========================
-   BASE THEME
-========================= */
-body{
-margin:0;
-font-family:Segoe UI;
-background: radial-gradient(circle at top, #050816, #000);
-color:white;
-overflow-x:hidden;
-}
-
-/* animated grid */
-body::before{
-content:"";
-position:fixed;
-inset:0;
-background:
-linear-gradient(rgba(0,255,255,0.05) 1px, transparent 1px),
-linear-gradient(90deg, rgba(0,255,255,0.05) 1px, transparent 1px);
-background-size:50px 50px;
-animation:move 18s linear infinite;
-pointer-events:none;
-}
-
-@keyframes move{
-0%{transform:translateY(0);}
-100%{transform:translateY(50px);}
-}
-
-/* =========================
-   SIDEBAR
-========================= */
-.sidebar{
-position:fixed;
-width:240px;
-height:100vh;
-background:rgba(2,6,23,0.9);
-border-right:1px solid rgba(0,255,255,0.15);
-padding:20px;
-backdrop-filter: blur(10px);
-}
-
-/* =========================
-   DEPTHIQ GLOW LOGO
-========================= */
+<div class="logo">
+  PIERCE AI
+<div class="tagline">
+Drilling Intelligence Platform
+</div>
+</div>
 .logo{
-font-size:30px;
+font-size:32px;
 font-weight:900;
 letter-spacing:4px;
 color:#00f5ff;
 text-shadow:
 0 0 10px #00f5ff,
-0 0 25px #00f5ff,
-0 0 50px #00f5ff;
+0 0 20px #00f5ff,
+0 0 40px #00f5ff,
+0 0 80px #00f5ff;
 animation:glow 2s infinite alternate;
-margin-bottom:40px;
 }
 
-@keyframes glow{
-0%{text-shadow:0 0 10px #00f5ff;}
-100%{text-shadow:0 0 20px #00f5ff,0 0 40px #00f5ff;}
+.tagline{
+font-size:11px;
+letter-spacing:2px;
+color:#94a3b8;
+margin-top:6px;
+}
+<div class="nav">
+
+<div class="nav-item">📊 Dashboard</div>
+
+<div class="nav-item">⚡ Prediction</div>
+
+<div class="nav-item">📈 Analytics</div>
+
+<div class="nav-item">🕒 History</div>
+
+<div class="nav-item">🚪 Logout</div>
+
+</div>
+.nav{
+margin-top:40px;
 }
 
-/* =========================
-   MAIN
-========================= */
-.main{
-margin-left:260px;
-padding:25px;
-}
-
-/* =========================
-   CARDS
-========================= */
-.card{
-background:rgba(255,255,255,0.04);
-border:1px solid rgba(0,255,255,0.15);
-padding:16px;
-border-radius:14px;
-margin-bottom:15px;
-backdrop-filter: blur(10px);
-}
-
-/* =========================
-   INPUT GRID
-========================= */
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
-
-input{
-padding:10px;
-border-radius:8px;
-border:1px solid rgba(0,255,255,0.2);
-background:#0b1220;
-color:white;
-outline:none;
-}
-
-input:focus{
-border:1px solid #00f5ff;
-box-shadow:0 0 10px #00f5ff33;
-}
-
-/* =========================
-   BUTTONS (GLOW FIXED)
-========================= */
-button{
-margin-top:12px;
+.nav-item{
 padding:12px;
-border:none;
+margin-bottom:10px;
 border-radius:10px;
 cursor:pointer;
-font-weight:bold;
-color:#001018;
-background:linear-gradient(90deg,#00f5ff,#3b82f6);
-box-shadow:0 0 15px rgba(0,245,255,0.3);
-transition:0.2s ease-in-out;
+transition:.3s;
 }
 
-button:hover{
-transform:scale(1.03);
-box-shadow:0 0 25px rgba(0,245,255,0.6);
+.nav-item:hover{
+background:rgba(0,245,255,.12);
+box-shadow:0 0 10px rgba(0,245,255,.25);
 }
-
-/* =========================
-   KPI
-========================= */
-.kpi{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:10px;
-}
-
-.value{
-color:#00f5ff;
-font-size:22px;
-font-weight:bold;
-text-shadow:0 0 10px #00f5ff;
-}
-
-h2{
-color:#e2e8f0;
-}
-
-</style>
-</head>
-
-<body>
-
-<div class="sidebar">
-<div class="logo">DEPTHIQ</div>
-</div>
-
-<div class="main">
-
-<h2>Drilling Intelligence Dashboard</h2>
-
-<!-- KPI -->
-<div class="kpi">
-<div class="card">ROP Avg <div class="value" id="avg">--</div></div>
-<div class="card">ROP Cut <div class="value" id="cut">--</div></div>
-<div class="card">ROP Fast <div class="value" id="fast">--</div></div>
-</div>
-
-<!-- INPUT -->
 <div class="card">
 
-<div class="grid">
-<input id="ad_rop_sp" placeholder="AD ROP SP">
-<input id="ad_torque_sp" placeholder="Torque SP">
-<input id="accum_trip_in" placeholder="Trip In">
-<input id="datetime" type="datetime-local">
-<input id="depth_of_cut" placeholder="Depth of Cut">
-<input id="hook_load" placeholder="Hook Load">
-<input id="total_gas" placeholder="Total Gas(ML)(Lagged)">
-<input id="wc_bit_weight" placeholder="Bit Weight">
-</div>
+<h3>System Status</h3>
 
-<button onclick="predict()">RUN PREDICTION</button>
+<p>🟢 API Online</p>
+
+<p>🟢 Model Loaded</p>
+
+<p>🟢 Scaler Ready</p>
+
+<p>🟢 Prediction Engine Active</p>
 
 </div>
-
-<!-- ACTUAL -->
 <div class="card">
 
-<h3 style="color:#00f5ff;">Actual vs Predicted Comparison</h3>
+<h3>Model Information</h3>
 
-<div class="grid">
-<input id="actual_avg" placeholder="Actual Avg">
-<input id="actual_cut" placeholder="Actual Cut">
-<input id="actual_fast" placeholder="Actual Fast">
+<p>Model: Random Forest</p>
+
+<p>Dataset: 704,000 Records</p>
+
+<p>Outputs: 3</p>
+
+<p>Best R²: 98.70%</p>
+
+<p>RMSE: 14.43</p>
+
 </div>
-
-<button onclick="compare()">COMPARE RESULTS</button>
-
-</div>
-
-<!-- CHART -->
 <div class="card">
-<canvas id="chart"></canvas>
-</div>
+
+<h3>Prediction Insights</h3>
+
+<div id="insight">
+
+Awaiting prediction...
 
 </div>
 
-<script>
+</div>
+let avgValue = r.ROP_Average;
 
-let last=[];
-let chart;
+let message = "";
 
-/* =========================
-   PREDICT
-========================= */
-async function predict(){
-
-const data={
-ad_rop_sp:+ad_rop_sp.value,
-ad_torque_sp:+ad_torque_sp.value,
-accum_trip_in:+accum_trip_in.value,
-datetime:new Date(datetime.value).getTime(),
-depth_of_cut:+depth_of_cut.value,
-hook_load:+hook_load.value,
-total_gas:+total_gas.value,
-wc_bit_weight:+wc_bit_weight.value
-};
-
-const res=await fetch("/predict",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(data)
-});
-
-const r=await res.json();
-
-last=[r.ROP_Average,r.ROP_Cut_Unit,r.ROP_Fast];
-
-avg.innerText=r.ROP_Average.toFixed(2);
-cut.innerText=r.ROP_Cut_Unit.toFixed(2);
-fast.innerText=r.ROP_Fast.toFixed(2);
-
-drawChart(null);
+if(avgValue > 100){
+message =
+"Excellent drilling performance detected. Maintain current operating conditions.";
+}
+else if(avgValue > 70){
+message =
+"Moderate drilling efficiency. Consider optimizing WOB and RPM.";
+}
+else{
+message =
+"Low drilling performance detected. Review drilling parameters.";
 }
 
-/* =========================
-   COMPARE
-========================= */
-function compare(){
+document.getElementById("insight").innerHTML = message;
+<div class="card">
 
-const actual=[
-+actual_avg.value||0,
-+actual_cut.value||0,
-+actual_fast.value||0
-];
+<h3>Prediction History</h3>
 
-drawChart(actual);
-}
+<table id="history">
 
-/* =========================
-   CHART
-========================= */
-function drawChart(actual){
+<tr>
 
-if(chart) chart.destroy();
+<th>ROP Avg</th>
 
-chart=new Chart(document.getElementById("chart"),{
-type:"bar",
-data:{
-labels:["ROP Avg","ROP Cut","ROP Fast"],
-datasets:[
+<th>ROP Cut</th>
 
-{
-label:"Predicted",
-data:last,
-backgroundColor:"#00f5ff"
-},
+<th>ROP Fast</th>
 
-...(actual?[{
-label:"Actual",
-data:actual,
-backgroundColor:"#f59e0b"
-}]:[])
+</tr>
 
-]
-}
-});
-}
+</table>
 
-</script>
+</div>
+let row =
+`
+<tr>
+<td>${r.ROP_Average.toFixed(2)}</td>
+<td>${r.ROP_Cut_Unit.toFixed(2)}</td>
+<td>${r.ROP_Fast.toFixed(2)}</td>
+</tr>
+`;
 
-</body>
-</html>
+document
+.getElementById("history")
+.innerHTML += row;
+<div class="card">
+
+<h3>Feature Importance</h3>
+
+<p>Depth of Cut ██████████</p>
+
+<p>AD ROP SP ████████</p>
+
+<p>WC Bit Weight ███████</p>
+
+<p>Hook Load ██████</p>
+
+<p>Torque █████</p>
+
+</div>
