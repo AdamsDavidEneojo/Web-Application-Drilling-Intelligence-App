@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PIERCE Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<style>
+
+body{
+margin:0;
+font-family:Segoe UI;
+background: radial-gradient(circle at top, #0b1220, #05070d);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+color:#e2e8f0;
+}
+
+.login-box{
+background:#0f172a;
+padding:40px;
+border-radius:12px;
+width:320px;
+box-shadow:0 0 20px rgba(0,245,255,0.2);
+text-align:center;
+}
+
+.logo{
+font-size:28px;
+font-weight:900;
+color:#00f5ff;
+text-shadow:0 0 10px #00f5ff;
+margin-bottom:5px;
+}
+
+.tagline{
+font-size:12px;
+color:#94a3b8;
+margin-bottom:25px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:8px;
+outline:none;
+background:#111827;
+color:white;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+background:#00f5ff;
+color:#000;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+box-shadow:0 0 15px #00f5ff;
+}
+
+.error{
+color:#ff4d4d;
+font-size:12px;
+margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+<div class="logo"> PIERCE </div>
+<div class="tagline">Drilling Intelligence Platform</div>
+
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<div class="error" id="error"></div>
+
+</div>
+
+<script>
+
+function login(){
+
+let user = document.getElementById("username").value;
+let pass = document.getElementById("password").value;
+
+if(user === "admin" && pass === "pierce123"){
+window.location.href = "index.html"; // redirect to dashboard
+}
+else{
+document.getElementById("error").innerText =
+"Invalid credentials. Try admin / pierce123";
+}
+
+}
+
+</script>
+
+</body>
+</html>
