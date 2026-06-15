@@ -15,7 +15,7 @@ from collections import deque
 # =========================
 # APP INIT
 # =========================
-app = FastAPI(title="PIERCE AI - DepthIQ")
+app = FastAPI(title="Pierce AI")
 
 # =========================
 # MODEL IDS (GOOGLE DRIVE)
@@ -79,7 +79,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def home():
-    return FileResponse("static/index.html")
+    return FileResponse("static/login.html")
+
+@app.get("/login")
+def login_ui():
+    return FileResponse("static/login.html")
 
 # =========================
 # HEALTH CHECK
@@ -109,7 +113,7 @@ def model_info():
 @app.get("/api")
 def api_info():
     return {
-        "app": "PIERCE AI / DepthIQ",
+        "app": "Pierce AI",
         "version": "2.0",
         "endpoints": ["/predict", "/health", "/model-info", "/history"]
     }
