@@ -1,128 +1,89 @@
-#  DepthIQ – Drilling Intelligence Platform
+# DepthIQ - Drilling Intelligence Platform
 
-**DepthIQ** is a machine learning-powered web application designed to predict **Rate of Penetration (ROP)** in drilling operations using real-time input parameters.
+DepthIQ is a machine learning web application for predicting rate of penetration (ROP) metrics from drilling operation inputs. It pairs a FastAPI backend with a lightweight dashboard for predictions, field-value comparison, and recent prediction review.
 
-It combines **petroleum engineering knowledge** with **AI/ML models** to provide fast, accurate, and actionable insights for drilling optimization.
+## Live Demo
 
----
+https://depthiq.onrender.com
 
-##  Live Demo
+## Features
 
-👉 https://depthiq.onrender.com
+- Multi-output ROP prediction:
+  - ROP Average
+  - ROP Cut Unit
+  - ROP Fast
+- Operational dashboard with input validation, model status, and Chart.js visualization.
+- Predicted vs actual comparison for field checks.
+- Recent prediction history served by the API.
+- Google Drive model download support for large model artifacts.
 
----
+## Tech Stack
 
-##  Key Features
+Frontend:
+- HTML
+- CSS
+- JavaScript
+- Chart.js
 
-*  **ROP Prediction (Multi-output)**
+Backend:
+- FastAPI
+- Uvicorn
+- Pydantic
 
-  * ROP Average
-  * ROP Cut Unit
-  * ROP Fast
+Machine learning:
+- Scikit-learn
+- NumPy
+- Joblib
 
-* 📊 **Interactive Dashboard**
+## Project Structure
 
-  * Real-time predictions
-  * Visual comparison (Predicted vs Actual)
-  * Dynamic charts using Chart.js
-
-* ⚡ **FastAPI Backend**
-
-  * High-performance API
-  * Clean architecture
-  * Scalable deployment
-
-* ☁️ **Cloud Deployment**
-
-  * Hosted on Render
-  * Model served via API
-  * Google Drive integration for large ML files
-
----
-
-##  Tech Stack
-
-**Frontend**
-
-* HTML, CSS, JavaScript
-* Chart.js
-
-**Backend**
-
-* FastAPI
-* Uvicorn
-
-**Machine Learning**
-
-* Scikit-learn
-* NumPy
-* Joblib
-
-**Deployment**
-
-* Render
-* GitHub
-
----
-
-## 📂 Project Structure
-
-```
+```text
 DepthIQ/
-│── main.py              # FastAPI backend
-│── requirements.txt    # Dependencies
-│── static/
-│   └── index.html      # Frontend UI
-│── .gitignore
+|-- main.py
+|-- requirements.txt
+|-- static/
+|   |-- index.html
+|   `-- login.html
+|-- .gitignore
+`-- README.md
 ```
 
----
+## Run Locally
 
-##  Installation (Run Locally)
-
-### 1. Clone repo
-
-```bash
-git clone https://github.com/AdamssDavidEneojo/DepthIQ.git
-cd DepthIQ
-```
-
-### 2. Install dependencies
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Run app
+Start the API and dashboard:
 
 ```bash
 python -m uvicorn main:app --reload
 ```
 
-### 4. Open in browser
+Open:
 
-```
+```text
 http://127.0.0.1:8000
 ```
 
----
+## API
 
-##  API Usage
+### `GET /health`
 
-### Endpoint:
+Returns whether the model is ready or still loading.
 
-```
-POST /predict
-```
+### `POST /predict`
 
-### Sample Request:
+Example request:
 
 ```json
 {
   "ad_rop_sp": 10,
   "ad_torque_sp": 5,
   "accum_trip_in": 3,
-  "datetime": 1,
+  "datetime": 1781524800000,
   "depth_of_cut": 2,
   "hook_load": 50,
   "total_gas": 20,
@@ -130,7 +91,7 @@ POST /predict
 }
 ```
 
-### Response:
+Example response:
 
 ```json
 {
@@ -140,58 +101,28 @@ POST /predict
 }
 ```
 
----
+### `GET /history`
 
-##  Model Info
+Returns the 20 most recent predictions.
 
-* Model: Multi-output Regression (Random Forest)
-* Inputs: 8 drilling parameters
-* Output: 3 ROP metrics
-* Preprocessing: StandardScaler
+## Deployment
 
----
+This repo includes `render.yaml` for Render blueprint deployments.
 
-##  Deployment
+If you are using an existing GitHub-connected Render web service, use these settings in the Render dashboard:
 
-Deployed on Render using:
-
-```
+```text
 Build Command: pip install -r requirements.txt
-Start Command: uvicorn main:app --host 0.0.0.0 --port 10000
+Start Command: uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
 
----
+## Notes
 
-## ⚠️ Notes
+- Large model files are downloaded at runtime and are not stored in Git.
+- The dashboard disables prediction while the model is loading.
+- `rop_model.pkl`, `scaler.pkl`, partial downloads, and Python cache files are ignored by Git.
+- For production authentication, replace the demo `static/login.html` flow with server-side auth.
 
-* Large model files are not stored in GitHub
-* Models are downloaded dynamically via Google Drive using `gdown`
+## Author
 
----
-
-## 📌 Future Improvements
-
-* 📡 Real-time drilling data integration
-* 📈 ROP vs Depth visualization
-* 📄 Export reports (PDF)
-* 🔐 Authentication system
-* 🌍 Multi-well analytics dashboard
-
----
-
-## 👨‍💻 Author
-
-**Adams David**
-Data Scientist | Petroleum Engineering
-
----
-
-## ⭐ Acknowledgment
-
-This project was developed as part of a **petroleum engineering + machine learning research initiative** focusing on drilling optimization.
-
----
-
-## 📢 License
-
-MIT License
+Adams David
