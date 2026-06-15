@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -10,6 +10,7 @@ import os
 import gdown
 import threading
 from threading import Event
+from collections import deque
 
 # =========================
 # APP INIT
@@ -30,7 +31,8 @@ scaler = None
 
 model_ready = Event()
 
-prediction_history = []
+prediction_history = deque(maxlen=20)
+history_lock = threading.Lock()
 
 # =========================
 # DOWNLOAD FUNCTION
@@ -46,15 +48,18 @@ def download_file(file_id, output):
 def load_models():
     global model, scaler
 
-    download_file(MODEL_ID, MODEL_PATH)
-    download_file(SCALER_ID, SCALER_PATH)
+    try:
+        download_file(MODEL_ID, MODEL_PATH)
+        download_file(SCALER_ID, SCALER_PATH)
 
-    model = joblib.load(MODEL_PATH)
-    scaler = joblib.load(SCALER_PATH)
+        model = joblib.load(MODEL_PATH)
+        scaler = joblib.load(SCALER_PATH)
 
-    model_ready.set()
+        model_ready.set()
+    except Exception as exc:
+        print(f"Model failed to load: {exc}")
 
-threading.Thread(target=load_models).start()
+threading.Thread(target=load_models, daemon=True).start()
 
 # =========================
 # CORS
@@ -130,7 +135,7 @@ def predict(data: ROPInput):
 
     try:
         if not model_ready.is_set():
-            return {"error": "Model still loading"}
+            raise HTTPException(status_code=503, detail="Model is still loading. Try again shortly.")
 
         x = np.array([[
 
@@ -154,23 +159,28 @@ def predict(data: ROPInput):
             "ROP_Fast": float(pred[0][2])
         }
 
-        # save history
-        prediction_history.append({
-            "input": data.dict(),
-            "output": result
-        })
+        payload = data.model_dump() if hasattr(data, "model_dump") else data.dict()
+
+        with history_lock:
+            prediction_history.append({
+                "input": payload,
+                "output": result
+            })
 
         return result
 
+    except HTTPException:
+        raise
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
 # =========================
 # HISTORY ENDPOINT (NEW)
 # =========================
 @app.get("/history")
 def history():
-    return prediction_history[-20:]
+    with history_lock:
+        return list(prediction_history)
 
 # =========================
 # FRONTEND ENTRY
