@@ -1,10 +1,10 @@
-# DepthIQ - Drilling Intelligence Platform
+# Pierce AI - Drilling Intelligence Platform
 
-DepthIQ is a machine learning web application for predicting rate of penetration (ROP) metrics from drilling operation inputs. It pairs a FastAPI backend with a lightweight dashboard for predictions, field-value comparison, and recent prediction review.
+Pierce AI is a machine learning web application for predicting rate of penetration (ROP) metrics from drilling operation inputs. It pairs a FastAPI backend with a lightweight dashboard for predictions, field-value comparison, and recent prediction review.
 
 ## Live Demo
 
-https://depthiq.onrender.com
+Add your Render URL here after deployment.
 
 ## Features
 
@@ -38,7 +38,7 @@ Machine learning:
 ## Project Structure
 
 ```text
-DepthIQ/
+PierceAI/
 |-- main.py
 |-- requirements.txt
 |-- static/

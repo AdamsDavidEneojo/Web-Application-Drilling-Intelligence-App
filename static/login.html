@@ -2,87 +2,159 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>PIERCE Login</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pierce AI Login</title>
 <style>
-body{
-margin:0;
-font-family:Segoe UI;
-background: radial-gradient(circle at top, #050816, #000);
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-color:white;
+:root{
+  --bg:#071014;
+  --panel:#0d1a1f;
+  --line:#25434a;
+  --text:#eef7f8;
+  --muted:#91aab0;
+  --accent:#31d6c9;
+  --danger:#ff6b6b;
 }
 
-.box{
-background:rgba(255,255,255,0.04);
-border:1px solid rgba(0,245,255,0.2);
-padding:40px;
-border-radius:14px;
-width:320px;
-text-align:center;
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  font-family:Segoe UI, Arial, sans-serif;
+  color:var(--text);
+  background:
+    linear-gradient(135deg, rgba(49,214,201,.1), transparent 30%),
+    linear-gradient(315deg, rgba(246,180,75,.08), transparent 26%),
+    var(--bg);
+}
+
+.login{
+  width:min(100%,390px);
+  padding:28px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(13,26,31,.9);
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:26px;
+}
+
+.mark{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  background:var(--accent);
+  color:#041215;
+  font-weight:900;
+}
+
+h1{
+  margin:0;
+  font-size:24px;
+}
+
+p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+label{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  margin:14px 0 6px;
 }
 
 input{
-width:100%;
-padding:12px;
-margin:10px 0;
-border-radius:8px;
-border:1px solid rgba(0,245,255,0.2);
-background:#0b1220;
-color:white;
+  width:100%;
+  min-height:44px;
+  padding:0 12px;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:#081317;
+  outline:none;
+  font:inherit;
+}
+
+input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(49,214,201,.14);
 }
 
 button{
-width:100%;
-padding:12px;
-background:linear-gradient(90deg,#00f5ff,#3b82f6);
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
+  width:100%;
+  min-height:44px;
+  margin-top:18px;
+  border:0;
+  border-radius:8px;
+  background:var(--accent);
+  color:#041215;
+  cursor:pointer;
+  font:inherit;
+  font-weight:800;
 }
 
-.error{color:red;font-size:12px;}
+.error{
+  min-height:20px;
+  margin-top:12px;
+  color:var(--danger);
+  font-size:13px;
+}
 </style>
 </head>
-
 <body>
+<main class="login">
+  <div class="brand">
+    <div class="mark">P</div>
+    <div>
+      <h1>Pierce AI</h1>
+      <p>Drilling intelligence platform</p>
+    </div>
+  </div>
 
-<div class="box">
-<h2> PIERCE </h2>
-<p>Drilling Intelligence Platform</p>
+  <form id="loginForm">
+    <label for="user">Username</label>
+    <input id="user" autocomplete="username" required>
 
-<input id="user" placeholder="Username">
-<input id="pass" type="password" placeholder="Password">
+    <label for="pass">Password</label>
+    <input id="pass" type="password" autocomplete="current-password" required>
 
-<button onclick="login()">Login</button>
-<div class="error" id="err"></div>
-</div>
+    <button type="submit">Login</button>
+    <div class="error" id="err"></div>
+  </form>
+</main>
 
 <script>
-
-function login(){
-let u=document.getElementById("user").value;
-let p=document.getElementById("pass").value;
-
-if(u==="admin" && p==="pierce123"){
-localStorage.setItem("pierce_logged_in","true");
-window.location.href="index.html";
-}else{
-document.getElementById("err").innerText="Invalid login";
-}
+if(localStorage.getItem("pierce_logged_in") === "true"){
+  window.location.replace("/app");
 }
 
-window.onload=()=>{
-if(localStorage.getItem("pierce_logged_in")){
-window.location.href="index.html";
-}
-}
+document.getElementById("loginForm").addEventListener("submit", event => {
+  event.preventDefault();
 
+  const username = document.getElementById("user").value.trim();
+  const password = document.getElementById("pass").value;
+
+  if(username === "admin" && password === "pierce123"){
+    localStorage.setItem("pierce_logged_in", "true");
+    window.location.href = "/app";
+    return;
+  }
+
+  document.getElementById("err").textContent = "Invalid username or password.";
+});
 </script>
-
 </body>
 </html>

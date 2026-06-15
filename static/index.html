@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DepthIQ Dashboard</title>
+<title>Pierce AI Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root{
@@ -355,8 +355,8 @@ input:focus{
     <div class="brand">
       <div class="mark">D</div>
       <div>
-        <h1>DepthIQ</h1>
-        <span>PIERCE AI platform</span>
+        <h1>Pierce AI</h1>
+        <span>Drilling intelligence</span>
       </div>
     </div>
     <div class="nav-item">
@@ -382,6 +382,7 @@ input:focus{
       <div class="button-row">
         <button class="btn secondary" id="sampleBtn" type="button">Use Sample</button>
         <button class="btn secondary" id="clearBtn" type="button">Clear</button>
+        <button class="btn secondary" id="logoutBtn" type="button">Logout</button>
       </div>
     </section>
 
@@ -443,6 +444,10 @@ input:focus{
 </div>
 
 <script>
+if(localStorage.getItem("pierce_logged_in") !== "true"){
+  window.location.replace("/login");
+}
+
 const fields = [
   "ad_rop_sp",
   "ad_torque_sp",
@@ -672,6 +677,10 @@ document.getElementById("compareForm").addEventListener("submit", event => {
 
 document.getElementById("sampleBtn").addEventListener("click", fillSample);
 document.getElementById("clearBtn").addEventListener("click", clearForms);
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.removeItem("pierce_logged_in");
+  window.location.href = "/login";
+});
 
 drawChart();
 refreshStatus();
