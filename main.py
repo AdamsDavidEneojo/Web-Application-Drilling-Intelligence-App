@@ -85,6 +85,10 @@ def home():
 def login_ui():
     return FileResponse("static/login.html")
 
+@app.get("/welcome")
+def welcome_ui():
+    return FileResponse("static/welcome.html")
+
 # =========================
 # HEALTH CHECK
 # =========================

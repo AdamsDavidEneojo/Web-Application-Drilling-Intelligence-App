@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pierce AI</title>
+<style>
+:root{
+  --bg:#071014;
+  --panel:#0d1a1f;
+  --line:#25434a;
+  --text:#eef7f8;
+  --muted:#91aab0;
+  --accent:#31d6c9;
+  --accent-2:#f6b44b;
+  --ok:#61d394;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Segoe UI, Arial, sans-serif;
+  color:var(--text);
+  background:
+    linear-gradient(135deg, rgba(49,214,201,.1), transparent 32%),
+    linear-gradient(315deg, rgba(246,180,75,.08), transparent 28%),
+    var(--bg);
+}
+
+.page{
+  width:min(1120px,100%);
+  margin:0 auto;
+  padding:28px;
+}
+
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  margin-bottom:48px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.mark{
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  background:var(--accent);
+  color:#041215;
+  font-weight:900;
+}
+
+.brand h1{
+  margin:0;
+  font-size:21px;
+}
+
+.brand span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  margin-top:2px;
+}
+
+.btn{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid transparent;
+  border-radius:8px;
+  padding:0 16px;
+  color:#041215;
+  background:var(--accent);
+  cursor:pointer;
+  text-decoration:none;
+  font-weight:800;
+}
+
+.btn.secondary{
+  color:var(--text);
+  background:transparent;
+  border-color:var(--line);
+}
+
+.hero{
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);
+  gap:24px;
+  align-items:center;
+}
+
+.hero h2{
+  max-width:780px;
+  margin:0;
+  font-size:clamp(38px,6vw,76px);
+  line-height:.98;
+  letter-spacing:0;
+}
+
+.hero p{
+  max-width:680px;
+  margin:18px 0 0;
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.6;
+}
+
+.actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:28px;
+}
+
+.panel{
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(13,26,31,.86);
+  padding:20px;
+  box-shadow:0 20px 50px rgba(0,0,0,.22);
+}
+
+.panel h3{
+  margin:0 0 14px;
+  font-size:16px;
+}
+
+.signal{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  padding:12px 0;
+  border-bottom:1px solid rgba(145,170,176,.12);
+}
+
+.signal:last-child{
+  border-bottom:0;
+}
+
+.signal span{
+  color:var(--muted);
+}
+
+.signal b{
+  color:var(--text);
+}
+
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--accent-2);
+  box-shadow:0 0 0 4px rgba(246,180,75,.12);
+}
+
+.dot.ready{
+  background:var(--ok);
+  box-shadow:0 0 0 4px rgba(97,211,148,.12);
+}
+
+@media (max-width:820px){
+  .hero{
+    grid-template-columns:1fr;
+  }
+
+  .nav{
+    align-items:flex-start;
+    flex-direction:column;
+    margin-bottom:36px;
+  }
+}
+
+@media (max-width:560px){
+  .page{
+    padding:20px;
+  }
+
+  .actions,.btn{
+    width:100%;
+  }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="nav">
+    <div class="brand">
+      <div class="mark">P</div>
+      <div>
+        <h1>Pierce AI</h1>
+        <span>Drilling intelligence platform</span>
+      </div>
+    </div>
+    <button class="btn secondary" id="logoutBtn" type="button">Logout</button>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h2>Predict drilling performance before the next decision point.</h2>
+      <p>Pierce AI uses drilling parameters to estimate rate of penetration metrics, helping compare expected performance with actual field results in a focused operational dashboard.</p>
+      <div class="actions">
+        <a class="btn" href="/app">Open Predictor</a>
+        <a class="btn secondary" href="/model-info">View Model Info</a>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <h3>What Pierce AI Tracks</h3>
+      <div class="signal"><span>Inputs</span><b>8 drilling signals</b></div>
+      <div class="signal"><span>Predictions</span><b>3 ROP outputs</b></div>
+      <div class="signal"><span>Comparison</span><b>Predicted vs actual</b></div>
+      <div class="signal"><span>Model Status</span><b class="status"><span class="dot" id="statusDot"></span><span id="modelStatus">Checking</span></b></div>
+    </aside>
+  </section>
+</main>
+
+<script>
+if(localStorage.getItem("pierce_logged_in") !== "true"){
+  window.location.replace("/login");
+}
+
+async function refreshStatus(){
+  try{
+    const res = await fetch("/health");
+    const data = await res.json();
+    const ready = data.status === "ready";
+    document.getElementById("modelStatus").textContent = ready ? "Ready" : "Loading";
+    document.getElementById("statusDot").classList.toggle("ready", ready);
+  }catch{
+    document.getElementById("modelStatus").textContent = "Offline";
+  }
+}
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.removeItem("pierce_logged_in");
+  window.location.href = "/login";
+});
+
+refreshStatus();
+setInterval(refreshStatus, 5000);
+</script>
+</body>
+</html>

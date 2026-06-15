@@ -13,6 +13,7 @@ Add your Render URL here after deployment.
   - ROP Cut Unit
   - ROP Fast
 - Operational dashboard with input validation, model status, and Chart.js visualization.
+- Login and overview page before the predictor.
 - Predicted vs actual comparison for field checks.
 - Recent prediction history served by the API.
 - Google Drive model download support for large model artifacts.
@@ -43,7 +44,8 @@ PierceAI/
 |-- requirements.txt
 |-- static/
 |   |-- index.html
-|   `-- login.html
+|   |-- login.html
+|   `-- welcome.html
 |-- .gitignore
 `-- README.md
 ```

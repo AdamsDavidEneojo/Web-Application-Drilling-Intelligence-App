@@ -380,6 +380,7 @@ input:focus{
         <p>Predict rate of penetration metrics from drilling parameters and compare the forecast against observed field values.</p>
       </div>
       <div class="button-row">
+        <button class="btn secondary" id="overviewBtn" type="button">Overview</button>
         <button class="btn secondary" id="sampleBtn" type="button">Use Sample</button>
         <button class="btn secondary" id="clearBtn" type="button">Clear</button>
         <button class="btn secondary" id="logoutBtn" type="button">Logout</button>
@@ -677,6 +678,9 @@ document.getElementById("compareForm").addEventListener("submit", event => {
 
 document.getElementById("sampleBtn").addEventListener("click", fillSample);
 document.getElementById("clearBtn").addEventListener("click", clearForms);
+document.getElementById("overviewBtn").addEventListener("click", () => {
+  window.location.href = "/welcome";
+});
 document.getElementById("logoutBtn").addEventListener("click", () => {
   localStorage.removeItem("pierce_logged_in");
   window.location.href = "/login";

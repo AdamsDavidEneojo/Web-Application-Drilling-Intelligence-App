@@ -138,7 +138,7 @@ button{
 
 <script>
 if(localStorage.getItem("pierce_logged_in") === "true"){
-  window.location.replace("/app");
+  window.location.replace("/welcome");
 }
 
 document.getElementById("loginForm").addEventListener("submit", event => {
@@ -149,7 +149,7 @@ document.getElementById("loginForm").addEventListener("submit", event => {
 
   if(username === "admin" && password === "pierce123"){
     localStorage.setItem("pierce_logged_in", "true");
-    window.location.href = "/app";
+    window.location.href = "/welcome";
     return;
   }
 
