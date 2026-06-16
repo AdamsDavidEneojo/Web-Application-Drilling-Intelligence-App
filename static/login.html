@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pierce AI Login</title>
+<title>Axelrod Login</title>
+<link rel="icon" href="/static/logo.jpg">
 <style>
 :root{
   --bg:#071014;
@@ -48,14 +49,20 @@ body{
 }
 
 .mark{
-  width:42px;
-  height:42px;
+  width:54px;
+  height:54px;
   display:grid;
   place-items:center;
   border-radius:8px;
-  background:var(--accent);
-  color:#041215;
-  font-weight:900;
+  background:#020609;
+  border:1px solid var(--line);
+  overflow:hidden;
+}
+
+.mark img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
 h1{
@@ -117,9 +124,9 @@ button{
 <body>
 <main class="login">
   <div class="brand">
-    <div class="mark">P</div>
+    <div class="mark"><img src="/static/logo.jpg" alt="Axelrod logo"></div>
     <div>
-      <h1>Pierce AI</h1>
+      <h1>Axelrod</h1>
       <p>Drilling intelligence platform</p>
     </div>
   </div>
@@ -137,7 +144,7 @@ button{
 </main>
 
 <script>
-if(localStorage.getItem("pierce_logged_in") === "true"){
+if(localStorage.getItem("axelrod_logged_in") === "true"){
   window.location.replace("/welcome");
 }
 
@@ -148,7 +155,7 @@ document.getElementById("loginForm").addEventListener("submit", event => {
   const password = document.getElementById("pass").value;
 
   if(username === "admin" && password === "pierce123"){
-    localStorage.setItem("pierce_logged_in", "true");
+    localStorage.setItem("axelrod_logged_in", "true");
     window.location.href = "/welcome";
     return;
   }

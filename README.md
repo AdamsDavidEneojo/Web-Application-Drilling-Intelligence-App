@@ -1,6 +1,6 @@
-# Pierce AI - Drilling Intelligence Platform
+# Axelrod - Drilling Intelligence Platform
 
-Pierce AI is a machine learning web application for predicting rate of penetration (ROP) metrics from drilling operation inputs. It pairs a FastAPI backend with a lightweight dashboard for predictions, field-value comparison, and recent prediction review.
+Axelrod is a machine learning web application for predicting rate of penetration (ROP) metrics from drilling operation inputs. It pairs a FastAPI backend with a lightweight dashboard for predictions, field-value comparison, and recent prediction review.
 
 ## Live Demo
 
@@ -39,7 +39,7 @@ Machine learning:
 ## Project Structure
 
 ```text
-PierceAI/
+Axelrod/
 |-- main.py
 |-- requirements.txt
 |-- static/

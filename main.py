@@ -15,7 +15,7 @@ from collections import deque
 # =========================
 # APP INIT
 # =========================
-app = FastAPI(title="Pierce AI")
+app = FastAPI(title="Axelrod")
 
 # =========================
 # MODEL IDS (GOOGLE DRIVE)
@@ -117,7 +117,7 @@ def model_info():
 @app.get("/api")
 def api_info():
     return {
-        "app": "Pierce AI",
+        "app": "Axelrod",
         "version": "2.0",
         "endpoints": ["/predict", "/health", "/model-info", "/history"]
     }

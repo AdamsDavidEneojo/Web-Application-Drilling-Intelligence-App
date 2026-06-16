@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pierce AI Dashboard</title>
+<title>Axelrod Dashboard</title>
+<link rel="icon" href="/static/logo.jpg">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root{
@@ -59,14 +60,20 @@ button,input{
 }
 
 .mark{
-  width:36px;
-  height:36px;
+  width:48px;
+  height:48px;
   display:grid;
   place-items:center;
   border-radius:8px;
-  background:var(--accent);
-  color:#041215;
-  font-weight:900;
+  background:#020609;
+  border:1px solid var(--line);
+  overflow:hidden;
+}
+
+.mark img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
 .brand h1{
@@ -353,9 +360,9 @@ input:focus{
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="mark">D</div>
+      <div class="mark"><img src="/static/logo.jpg" alt="Axelrod logo"></div>
       <div>
-        <h1>Pierce AI</h1>
+        <h1>Axelrod</h1>
         <span>Drilling intelligence</span>
       </div>
     </div>
@@ -445,7 +452,7 @@ input:focus{
 </div>
 
 <script>
-if(localStorage.getItem("pierce_logged_in") !== "true"){
+if(localStorage.getItem("axelrod_logged_in") !== "true"){
   window.location.replace("/login");
 }
 
@@ -682,7 +689,7 @@ document.getElementById("overviewBtn").addEventListener("click", () => {
   window.location.href = "/welcome";
 });
 document.getElementById("logoutBtn").addEventListener("click", () => {
-  localStorage.removeItem("pierce_logged_in");
+  localStorage.removeItem("axelrod_logged_in");
   window.location.href = "/login";
 });
 
