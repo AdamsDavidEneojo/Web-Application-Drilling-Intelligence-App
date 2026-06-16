@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Axelrod Results Guide</title>
+<link rel="icon" href="/static/logo.jpg">
+<style>
+:root{
+  --bg:#071014;
+  --panel:#0d1a1f;
+  --line:#25434a;
+  --text:#eef7f8;
+  --muted:#91aab0;
+  --accent:#31d6c9;
+  --accent-2:#f6b44b;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Segoe UI, Arial, sans-serif;
+  color:var(--text);
+  background:
+    linear-gradient(135deg, rgba(49,214,201,.1), transparent 32%),
+    linear-gradient(315deg, rgba(246,180,75,.08), transparent 28%),
+    var(--bg);
+}
+
+.page{
+  width:min(1120px,100%);
+  margin:0 auto;
+  padding:28px;
+}
+
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  margin-bottom:34px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.logo{
+  width:110px;
+  height:70px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:#020609;
+  overflow:hidden;
+}
+
+.logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+h1,h2,h3,p{
+  margin-top:0;
+}
+
+h1{
+  margin-bottom:4px;
+  font-size:24px;
+}
+
+.muted{
+  color:var(--muted);
+}
+
+.btn{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:0 16px;
+  color:var(--text);
+  background:transparent;
+  cursor:pointer;
+  text-decoration:none;
+  font-weight:800;
+}
+
+.btn.primary{
+  color:#041215;
+  border-color:transparent;
+  background:var(--accent);
+}
+
+.hero{
+  margin-bottom:18px;
+}
+
+.hero h2{
+  max-width:860px;
+  margin-bottom:12px;
+  font-size:clamp(34px,5vw,64px);
+  line-height:1;
+}
+
+.hero p{
+  max-width:760px;
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.6;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+  margin-top:22px;
+}
+
+.panel{
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(13,26,31,.84);
+  padding:18px;
+  box-shadow:0 20px 50px rgba(0,0,0,.2);
+}
+
+.panel h3{
+  margin-bottom:8px;
+  color:var(--accent);
+}
+
+.panel p{
+  color:var(--muted);
+  line-height:1.55;
+}
+
+.wide{
+  grid-column:1 / -1;
+}
+
+.steps{
+  display:grid;
+  gap:10px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.steps li{
+  border-top:1px solid rgba(145,170,176,.14);
+  padding-top:10px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.steps b{
+  color:var(--text);
+}
+
+.actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:22px;
+}
+
+@media (max-width:820px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .nav{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
+
+@media (max-width:560px){
+  .page{
+    padding:20px;
+  }
+
+  .actions,.btn{
+    width:100%;
+  }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="nav">
+    <div class="brand">
+      <div class="logo"><img src="/static/logo.jpg" alt="Axelrod logo"></div>
+      <div>
+        <h1>Axelrod</h1>
+        <div class="muted">Results guide</div>
+      </div>
+    </div>
+    <a class="btn" href="/welcome">Overview</a>
+  </header>
+
+  <section class="hero">
+    <h2>How to read Axelrod predictions.</h2>
+    <p>The dashboard returns three ROP estimates and lets you compare them with actual field values. Use the results as decision support, then validate them against drilling context, sensor quality, and operational constraints.</p>
+    <div class="actions">
+      <a class="btn primary" href="/app">Open Predictor</a>
+      <a class="btn" href="/welcome">Back to App Overview</a>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="panel">
+      <h3>ROP Average</h3>
+      <p>The model's estimated average rate of penetration for the provided drilling parameters. This is the main baseline result to compare against field performance.</p>
+    </article>
+
+    <article class="panel">
+      <h3>ROP Cut Unit</h3>
+      <p>A cut-focused ROP estimate that helps review drilling efficiency against the depth-of-cut and related operating inputs.</p>
+    </article>
+
+    <article class="panel">
+      <h3>ROP Fast</h3>
+      <p>A faster-case ROP estimate that can help identify upside performance, but should still be checked against safety and equipment limits.</p>
+    </article>
+
+    <article class="panel wide">
+      <h3>Predicted vs Actual</h3>
+      <ul class="steps">
+        <li><b>Predicted</b> values come from the model after the eight input signals are processed.</li>
+        <li><b>Actual</b> values are the real field measurements you enter after a run or interval.</li>
+        <li><b>Close values</b> suggest the model matched the operating condition well.</li>
+        <li><b>Large gaps</b> can mean unusual drilling conditions, noisy sensor data, missing context, or that the model needs more representative training data.</li>
+      </ul>
+    </article>
+
+    <article class="panel wide">
+      <h3>Best Practice</h3>
+      <p>Keep input units consistent, enter complete actual values before comparing, and review the chart as a trend aid rather than a single final answer. If the model status is still loading, wait for it to show ready before running a prediction.</p>
+    </article>
+  </section>
+</main>
+
+<script>
+if(localStorage.getItem("axelrod_logged_in") !== "true"){
+  window.location.replace("/login");
+}
+</script>
+</body>
+</html>
