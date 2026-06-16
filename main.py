@@ -77,17 +77,24 @@ app.add_middleware(
 # =========================
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+def page_response(path):
+    return FileResponse(path, headers={"Cache-Control": "no-store"})
+
 @app.get("/")
 def home():
-    return FileResponse("static/login.html")
+    return page_response("static/login.html")
 
 @app.get("/login")
 def login_ui():
-    return FileResponse("static/login.html")
+    return page_response("static/login.html")
 
 @app.get("/welcome")
 def welcome_ui():
-    return FileResponse("static/welcome.html")
+    return page_response("static/welcome.html")
+
+@app.get("/results")
+def results_ui():
+    return page_response("static/results.html")
 
 # =========================
 # HEALTH CHECK
@@ -195,4 +202,4 @@ def history():
 # =========================
 @app.get("/app")
 def app_ui():
-    return FileResponse("static/index.html")
+    return page_response("static/index.html")

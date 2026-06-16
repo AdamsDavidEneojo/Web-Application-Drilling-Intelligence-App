@@ -14,6 +14,7 @@ Add your Render URL here after deployment.
   - ROP Fast
 - Operational dashboard with input validation, model status, and Chart.js visualization.
 - Login and overview page before the predictor.
+- Results guide page explaining prediction outputs and predicted-vs-actual comparison.
 - Predicted vs actual comparison for field checks.
 - Recent prediction history served by the API.
 - Google Drive model download support for large model artifacts.
@@ -45,6 +46,8 @@ Axelrod/
 |-- static/
 |   |-- index.html
 |   |-- login.html
+|   |-- results.html
+|   |-- logo.jpg
 |   `-- welcome.html
 |-- .gitignore
 `-- README.md
