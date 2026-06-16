@@ -3,3 +3,4 @@ scaler.pkl
 *.part
 __pycache__/
 *.py[cod]
+photo_*.jpg
