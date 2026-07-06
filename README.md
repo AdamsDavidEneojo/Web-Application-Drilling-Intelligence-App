@@ -3,8 +3,7 @@
 Axelrod is a machine learning web application for predicting rate of penetration (ROP) metrics from drilling operation inputs. It pairs a FastAPI backend with a lightweight dashboard for predictions, field-value comparison, and recent prediction review.
 
 ## Live Demo
-
-Add your Render URL here after deployment.
+https://axelrod-de1o.onrender.com
 
 ## Features
 
