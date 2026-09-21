@@ -390,7 +390,6 @@ input:focus{
         <button class="btn secondary" id="resultsBtn" type="button">Results Guide</button>
         <button class="btn secondary" id="sampleBtn" type="button">Use Sample</button>
         <button class="btn secondary" id="clearBtn" type="button">Clear</button>
-        <button class="btn secondary" id="logoutBtn" type="button">Logout</button>
       </div>
     </section>
 
@@ -452,10 +451,6 @@ input:focus{
 </div>
 
 <script>
-if(localStorage.getItem("axelrod_logged_in") !== "true"){
-  window.location.replace("/login");
-}
-
 const fields = [
   "ad_rop_sp",
   "ad_torque_sp",
@@ -690,10 +685,6 @@ document.getElementById("overviewBtn").addEventListener("click", () => {
 });
 document.getElementById("resultsBtn").addEventListener("click", () => {
   window.location.href = "/results";
-});
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  localStorage.removeItem("axelrod_logged_in");
-  window.location.href = "/login";
 });
 
 drawChart();
