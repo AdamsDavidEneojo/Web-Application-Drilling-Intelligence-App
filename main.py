@@ -1,68 +1,75 @@
+"""
+Axelrod - Drilling Intelligence Platform
+FastAPI backend for ROP prediction and analysis
+"""
+import threading
+from contextlib import asynccontextmanager
+from collections import deque
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
 
-import numpy as np
-import joblib
-import os
-import gdown
-import threading
-from threading import Event
-from collections import deque
+from config import (
+    APP_TITLE,
+    APP_VERSION,
+    MODEL_ID,
+    SCALER_ID,
+    MODEL_PATH,
+    SCALER_PATH,
+    MAX_HISTORY_SIZE,
+    STATIC_DIR,
+)
+from schemas import ROPInput, ROPOutput, HealthCheck, ModelInfo, APIInfo
+from model_loader import load_models, is_model_ready
+from predict_service import predict
+from logger import setup_logger
+
+logger = setup_logger(__name__)
 
 # =========================
-# APP INIT
+# HISTORY & THREAD SAFETY
 # =========================
-app = FastAPI(title="Axelrod")
-
-# =========================
-# MODEL IDS (GOOGLE DRIVE)
-# =========================
-MODEL_ID = "1HSGTNa48Ft3dgnhtDPufw321fphWf4kS"
-SCALER_ID = "1kPLWoJbFaU3jC3jSENalLo1dSRz25mjp"
-
-MODEL_PATH = "rop_model.pkl"
-SCALER_PATH = "scaler.pkl"
-
-model = None
-scaler = None
-
-model_ready = Event()
-
-prediction_history = deque(maxlen=20)
+prediction_history = deque(maxlen=MAX_HISTORY_SIZE)
 history_lock = threading.Lock()
 
-# =========================
-# DOWNLOAD FUNCTION
-# =========================
-def download_file(file_id, output):
-    if not os.path.exists(output):
-        url = f"https://drive.google.com/uc?id={file_id}"
-        gdown.download(url, output, quiet=False)
 
 # =========================
-# LOAD MODEL (ASYNC SAFE)
+# STARTUP/SHUTDOWN
 # =========================
-def load_models():
-    global model, scaler
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown logic."""
+    # Startup
+    logger.info(f"Starting {APP_TITLE} v{APP_VERSION}")
+    model_thread = threading.Thread(
+        target=load_models,
+        args=(MODEL_ID, SCALER_ID, MODEL_PATH, SCALER_PATH),
+        daemon=True,
+        name="ModelLoader",
+    )
+    model_thread.start()
+    logger.info("Model loader thread started")
 
-    try:
-        download_file(MODEL_ID, MODEL_PATH)
-        download_file(SCALER_ID, SCALER_PATH)
+    yield
 
-        model = joblib.load(MODEL_PATH)
-        scaler = joblib.load(SCALER_PATH)
+    # Shutdown
+    logger.info(f"Shutting down {APP_TITLE}")
 
-        model_ready.set()
-    except Exception as exc:
-        print(f"Model failed to load: {exc}")
-
-threading.Thread(target=load_models, daemon=True).start()
 
 # =========================
-# CORS
+# APP INITIALIZATION
+# =========================
+app = FastAPI(
+    title=APP_TITLE,
+    version=APP_VERSION,
+    description="Machine learning platform for drilling ROP prediction",
+    lifespan=lifespan,
+)
+
+# =========================
+# CORS MIDDLEWARE
 # =========================
 app.add_middleware(
     CORSMiddleware,
@@ -75,131 +82,157 @@ app.add_middleware(
 # =========================
 # STATIC FRONTEND
 # =========================
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-def page_response(path):
+
+def page_response(path: str) -> FileResponse:
+    """Serve a static HTML page with no-store cache control."""
     return FileResponse(path, headers={"Cache-Control": "no-store"})
 
-@app.get("/")
+
+@app.get("/", include_in_schema=False)
 def home():
-    return page_response("static/login.html")
+    """Home page - redirects to app."""
+    return page_response(str(STATIC_DIR / "index.html"))
 
-@app.get("/login")
-def login_ui():
-    return page_response("static/login.html")
 
-@app.get("/welcome")
+@app.get("/app", include_in_schema=False)
+def app_ui():
+    """Main predictor dashboard."""
+    return page_response(str(STATIC_DIR / "index.html"))
+
+
+@app.get("/welcome", include_in_schema=False)
 def welcome_ui():
-    return page_response("static/welcome.html")
+    """Welcome/overview page."""
+    return page_response(str(STATIC_DIR / "welcome.html"))
 
-@app.get("/results")
+
+@app.get("/results", include_in_schema=False)
 def results_ui():
-    return page_response("static/results.html")
+    """Results guide page."""
+    return page_response(str(STATIC_DIR / "results.html"))
+
 
 # =========================
-# HEALTH CHECK
+# HEALTH & INFO ENDPOINTS
 # =========================
-@app.get("/health")
-def health():
-    return {
-        "status": "ready" if model_ready.is_set() else "loading"
-    }
+@app.get("/health", response_model=HealthCheck, tags=["Status"])
+def health() -> HealthCheck:
+    """Check if model is loaded and ready."""
+    status = "ready" if is_model_ready() else "loading"
+    logger.debug(f"Health check: {status}")
+    return HealthCheck(status=status)
+
+
+@app.get("/model-info", response_model=ModelInfo, tags=["Status"])
+def model_info() -> ModelInfo:
+    """Get information about the model."""
+    return ModelInfo(
+        model="Random Forest Regressor",
+        framework="scikit-learn",
+        inputs=8,
+        outputs=3,
+        status="ready" if is_model_ready() else "loading",
+    )
+
+
+@app.get("/api", response_model=APIInfo, tags=["Status"])
+def api_info() -> APIInfo:
+    """Get API information and available endpoints."""
+    return APIInfo(
+        app=APP_TITLE,
+        version=APP_VERSION,
+        endpoints=[
+            "/health",
+            "/model-info",
+            "/predict",
+            "/history",
+        ],
+    )
+
 
 # =========================
-# MODEL INFO (NEW)
+# PREDICTION ENDPOINT
 # =========================
-@app.get("/model-info")
-def model_info():
-    return {
-        "model": "Random Forest Regressor",
-        "framework": "scikit-learn",
-        "inputs": 8,
-        "outputs": 3,
-        "status": "ready" if model_ready.is_set() else "loading"
-    }
+@app.post("/predict", response_model=ROPOutput, tags=["Prediction"])
+def predict_rop(data: ROPInput) -> ROPOutput:
+    """
+    Run a single ROP prediction.
 
-# =========================
-# API INFO (NEW)
-# =========================
-@app.get("/api")
-def api_info():
-    return {
-        "app": "Axelrod",
-        "version": "2.0",
-        "endpoints": ["/predict", "/health", "/model-info", "/history"]
-    }
+    Request body should contain 8 drilling signals:
+    - ad_rop_sp, ad_torque_sp, accum_trip_in, datetime
+    - depth_of_cut, hook_load, total_gas, wc_bit_weight
 
-# =========================
-# INPUT SCHEMA
-# =========================
-class ROPInput(BaseModel):
-    ad_rop_sp: float
-    ad_torque_sp: float
-    accum_trip_in: float
-    datetime: float
-    depth_of_cut: float
-    hook_load: float
-    total_gas: float
-    wc_bit_weight: float
-
-# =========================
-# PREDICT ENDPOINT (UPGRADED)
-# =========================
-@app.post("/predict")
-def predict(data: ROPInput):
-
+    Returns three ROP estimates: ROP_Average, ROP_Cut_Unit, ROP_Fast
+    """
     try:
-        if not model_ready.is_set():
-            raise HTTPException(status_code=503, detail="Model is still loading. Try again shortly.")
+        if not is_model_ready():
+            logger.warning("Prediction attempted while model still loading")
+            raise HTTPException(
+                status_code=503,
+                detail="Model is still loading. Please try again in a few seconds.",
+            )
 
-        x = np.array([[
+        # Generate prediction
+        result = predict(data)
+        logger.info(f"Prediction completed: {data.ad_rop_sp} inputs")
 
-            data.ad_rop_sp,
-            data.ad_torque_sp,
-            data.accum_trip_in,
-            data.datetime,
-            data.depth_of_cut,
-            data.hook_load,
-            data.total_gas,
-            data.wc_bit_weight
-
-        ]])
-
-        x = scaler.transform(x)
-        pred = model.predict(x)
-
-        result = {
-            "ROP_Average": float(pred[0][0]),
-            "ROP_Cut_Unit": float(pred[0][1]),
-            "ROP_Fast": float(pred[0][2])
-        }
-
-        payload = data.model_dump() if hasattr(data, "model_dump") else data.dict()
-
+        # Store in history
         with history_lock:
             prediction_history.append({
-                "input": payload,
-                "output": result
+                "input": data.model_dump(),
+                "output": result.model_dump(),
             })
+            logger.debug(f"History size: {len(prediction_history)}")
 
         return result
 
     except HTTPException:
         raise
+    except ValueError as e:
+        logger.warning(f"Validation error in prediction: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        logger.error(f"Prediction runtime error: {e}")
+        raise HTTPException(status_code=500, detail="Prediction failed internally")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Unexpected error in predict endpoint: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 
 # =========================
-# HISTORY ENDPOINT (NEW)
+# HISTORY ENDPOINT
 # =========================
-@app.get("/history")
-def history():
+@app.get("/history", tags=["Data"])
+def get_history() -> list:
+    """
+    Retrieve the last 20 predictions.
+
+    Returns list of {input, output} objects.
+    """
     with history_lock:
-        return list(prediction_history)
+        data = list(prediction_history)
+    logger.debug(f"History retrieved: {len(data)} entries")
+    return data
+
 
 # =========================
-# FRONTEND ENTRY
+# ROOT ENDPOINT
 # =========================
-@app.get("/app")
-def app_ui():
-    return page_response("static/index.html")
+@app.get("/docs", include_in_schema=False)
+def docs():
+    """API documentation."""
+    return FileResponse(str(STATIC_DIR / "index.html"))
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    logger.info(f"Starting {APP_TITLE} server...")
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=False,
+    )

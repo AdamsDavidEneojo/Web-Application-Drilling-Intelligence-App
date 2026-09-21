@@ -268,7 +268,7 @@ body{
         <span>Drilling intelligence platform</span>
       </div>
     </div>
-    <button class="btn secondary" id="logoutBtn" type="button">Logout</button>
+    <button class="btn secondary" id="backBtn" type="button">Back to App</button>
   </header>
 
   <section class="hero">
@@ -308,10 +308,6 @@ body{
 </main>
 
 <script>
-if(localStorage.getItem("axelrod_logged_in") !== "true"){
-  window.location.replace("/login");
-}
-
 async function refreshStatus(){
   try{
     const res = await fetch("/health");
@@ -336,9 +332,8 @@ async function loadModelInfo(){
   }
 }
 
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  localStorage.removeItem("axelrod_logged_in");
-  window.location.href = "/login";
+document.getElementById("backBtn").addEventListener("click", () => {
+  window.location.href = "/app";
 });
 
 refreshStatus();
