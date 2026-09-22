@@ -2,5 +2,14 @@ services:
   - type: web
     name: axelrod
     env: python
-    buildCommand: pip install -r requirements.txt
+    plan: free
+    pythonVersion: 3.11
+    buildCommand: pip install --no-cache-dir -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: LOG_LEVEL
+        value: INFO
+      - key: MODEL_ID
+        value: 1HSGTNa48Ft3dgnhtDPufw321fphWf4kS
+      - key: SCALER_ID
+        value: 1kPLWoJbFaU3jC3jSENalLo1dSRz25mjp
