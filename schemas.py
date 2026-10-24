@@ -1,4 +1,6 @@
 """Data validation schemas using Pydantic."""
+import math
+
 from pydantic import BaseModel, Field, validator
 
 
@@ -16,8 +18,25 @@ class ROPInput(BaseModel):
     @validator("*")
     def validate_finite(cls, v):
         """Ensure all values are finite numbers."""
-        if not isinstance(v, (int, float)) or not (-1e10 < v < 1e10):
+        if not math.isfinite(v):
             raise ValueError("All inputs must be finite numbers")
+        return v
+
+    @validator("datetime")
+    def validate_timestamp_ms(cls, v):
+        """Accept plausible Unix timestamps expressed in milliseconds."""
+        if not 0 <= v <= 1e14:
+            raise ValueError("datetime must be a Unix timestamp in milliseconds")
+        return v
+
+    @validator(
+        "ad_rop_sp", "ad_torque_sp", "accum_trip_in", "depth_of_cut",
+        "hook_load", "total_gas", "wc_bit_weight",
+    )
+    def validate_measurement_range(cls, v):
+        """Reject implausibly large sensor values without constraining timestamps."""
+        if not -1e10 < v < 1e10:
+            raise ValueError("Input values must be within the supported range")
         return v
 
 
@@ -37,6 +56,7 @@ class HistoryEntry(BaseModel):
 class HealthCheck(BaseModel):
     """Health check response."""
     status: str  # "ready" or "loading"
+    message: str | None = None
 
 
 class ModelInfo(BaseModel):

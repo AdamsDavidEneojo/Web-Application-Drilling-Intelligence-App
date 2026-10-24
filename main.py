@@ -24,7 +24,7 @@ from config import (
     STATIC_DIR,
 )
 from schemas import ROPInput, ROPOutput, HealthCheck, ModelInfo, APIInfo
-from model_loader import load_models, is_model_ready
+from model_loader import load_models, is_model_ready, has_model_load_failed
 from predict_service import predict
 from logger import setup_logger
 
@@ -122,9 +122,16 @@ def results_ui():
 @app.get("/health", response_model=HealthCheck, tags=["Status"])
 def health() -> HealthCheck:
     """Check if model is loaded and ready."""
-    status = "ready" if is_model_ready() else "loading"
+    if is_model_ready():
+        return HealthCheck(status="ready", message="Prediction model is ready.")
+    if has_model_load_failed():
+        return HealthCheck(
+            status="error",
+            message="The prediction model could not be loaded. Check the service logs.",
+        )
+    status = "loading"
     logger.debug(f"Health check: {status}")
-    return HealthCheck(status=status)
+    return HealthCheck(status=status, message="The prediction model is starting up.")
 
 
 @app.get("/health/live", tags=["Status"])
