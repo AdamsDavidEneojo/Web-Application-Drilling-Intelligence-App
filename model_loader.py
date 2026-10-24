@@ -32,6 +32,7 @@ model = None
 scaler = None
 model_ready = Event()
 model_lock = Lock()
+model_load_failed = False
 
 
 def download_file(file_id: str, output_path: str) -> None:
@@ -64,7 +65,7 @@ def download_file(file_id: str, output_path: str) -> None:
 
 def load_models(model_id: str, scaler_id: str, model_path: str, scaler_path: str) -> None:
     """Load model and scaler from disk, downloading if necessary."""
-    global model, scaler
+    global model, scaler, model_load_failed
 
     with model_lock:
         try:
@@ -83,10 +84,12 @@ def load_models(model_id: str, scaler_id: str, model_path: str, scaler_path: str
             scaler = joblib.load(scaler_path)
             logger.info("Scaler loaded successfully")
 
+            model_load_failed = False
             model_ready.set()
             logger.info("Model initialization complete - model is ready for predictions")
 
         except Exception as e:
+            model_load_failed = True
             logger.error(f"Model initialization failed: {e}", exc_info=True)
             model_ready.clear()
 
@@ -94,6 +97,11 @@ def load_models(model_id: str, scaler_id: str, model_path: str, scaler_path: str
 def is_model_ready() -> bool:
     """Check if model is ready for predictions."""
     return model_ready.is_set()
+
+
+def has_model_load_failed() -> bool:
+    """Report whether the most recent model initialization attempt failed."""
+    return model_load_failed
 
 
 def get_model():
