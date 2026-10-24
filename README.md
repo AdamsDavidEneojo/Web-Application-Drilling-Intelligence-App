@@ -183,6 +183,8 @@ Response:
 
 **POST `/predict/batch`** accepts an array of the same input objects (up to 100) and returns an array of predictions. Batch rows are added to recent history.
 
+The dashboard also supports batch CSV uploads with those eight input columns. Use **Get template** to download a correctly headed example, then upload a CSV to preview, validate, predict, and download the joined input/output results.
+
 **GET `/history.csv`** downloads recent inputs and predictions as a CSV file. The dashboard's **Export CSV** button uses this endpoint.
 
 ## Deploy to Render
