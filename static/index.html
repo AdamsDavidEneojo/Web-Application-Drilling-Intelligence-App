@@ -442,7 +442,10 @@ input:focus{
         </section>
 
         <section class="panel" style="margin-top:18px">
-          <h3>Recent Predictions</h3>
+          <div class="button-row" style="justify-content:space-between">
+            <h3>Recent Predictions</h3>
+            <button class="btn secondary" id="exportHistoryBtn" type="button">Export CSV</button>
+          </div>
           <div class="history" id="historyList"></div>
         </section>
       </div>
@@ -685,6 +688,9 @@ document.getElementById("overviewBtn").addEventListener("click", () => {
 });
 document.getElementById("resultsBtn").addEventListener("click", () => {
   window.location.href = "/results";
+});
+document.getElementById("exportHistoryBtn").addEventListener("click", () => {
+  window.location.href = "/history.csv";
 });
 
 drawChart();

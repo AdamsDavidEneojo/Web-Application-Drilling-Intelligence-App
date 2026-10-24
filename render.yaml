@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: axelrod
+    runtime: docker
+    plan: free
+    healthCheckPath: /health/live
+    envVars:
+      - key: LOG_LEVEL
+        value: INFO
+      - key: MODEL_ID
+        sync: false
+      - key: SCALER_ID
+        sync: false

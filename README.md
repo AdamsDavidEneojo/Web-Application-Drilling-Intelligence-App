@@ -14,6 +14,8 @@ Axelrod is a production-ready machine learning web application for predicting ra
 - Real-time model status monitoring
 - Predicted vs. actual value comparison with Chart.js visualization
 - Recent prediction history (last 20 predictions)
+- Batch prediction API (up to 100 rows per request)
+- Downloadable CSV export of recent predictions
 - Responsive design for desktop and mobile
 
 **Backend**
@@ -178,6 +180,14 @@ Response:
   "ROP_Fast": 420.15
 }
 ```
+
+**POST `/predict/batch`** accepts an array of the same input objects (up to 100) and returns an array of predictions. Batch rows are added to recent history.
+
+**GET `/history.csv`** downloads recent inputs and predictions as a CSV file. The dashboard's **Export CSV** button uses this endpoint.
+
+## Deploy to Render
+
+The repository includes a Render Blueprint in `render.yaml`. Connect this GitHub repository in Render and create a Blueprint instance; provide `MODEL_ID` and `SCALER_ID` when prompted. Render builds the pinned Python 3.11 Docker image and uses `/health/live` for service health checks. The application binds to Render's `PORT` environment variable.
 
 ### History Endpoint
 
