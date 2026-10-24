@@ -50,7 +50,8 @@ def download_file(file_id: str, output_path: str) -> None:
         logger.info("Downloading model artifact %s", normalized_id)
         import gdown
 
-        result = gdown.download(id=normalized_id, output=temporary_path, quiet=True)
+        download_url = f"https://drive.google.com/uc?id={normalized_id}"
+        result = gdown.download(url=download_url, output=temporary_path, quiet=True)
         if not result or not os.path.isfile(temporary_path) or os.path.getsize(temporary_path) <= 100:
             raise RuntimeError(f"Google Drive returned an empty or invalid download for {normalized_id}")
         os.replace(temporary_path, output_path)
