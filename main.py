@@ -3,13 +3,15 @@ Axelrod - Drilling Intelligence Platform
 FastAPI backend for ROP prediction and analysis
 """
 import threading
+import csv
+import io
 from contextlib import asynccontextmanager
 from collections import deque
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 
 from config import (
     APP_TITLE,
@@ -125,6 +127,12 @@ def health() -> HealthCheck:
     return HealthCheck(status=status)
 
 
+@app.get("/health/live", tags=["Status"])
+def liveness() -> dict:
+    """Confirm the web process is responsive, even while the model loads."""
+    return {"status": "alive"}
+
+
 @app.get("/model-info", response_model=ModelInfo, tags=["Status"])
 def model_info() -> ModelInfo:
     """Get information about the model."""
@@ -145,9 +153,12 @@ def api_info() -> APIInfo:
         version=APP_VERSION,
         endpoints=[
             "/health",
+            "/health/live",
             "/model-info",
             "/predict",
+            "/predict/batch",
             "/history",
+            "/history.csv",
         ],
     )
 
@@ -201,20 +212,66 @@ def predict_rop(data: ROPInput) -> ROPOutput:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
+@app.post("/predict/batch", response_model=list[ROPOutput], tags=["Prediction"])
+def predict_batch(data: list[ROPInput]) -> list[ROPOutput]:
+    """Predict up to 100 rows in one request and include them in history."""
+    if not data:
+        raise HTTPException(status_code=422, detail="At least one input row is required.")
+    if len(data) > 100:
+        raise HTTPException(status_code=422, detail="A batch can contain at most 100 rows.")
+    if not is_model_ready():
+        raise HTTPException(status_code=503, detail="Model is still loading. Please try again shortly.")
+
+    try:
+        results = [predict(row) for row in data]
+    except (ValueError, RuntimeError) as exc:
+        logger.exception("Batch prediction failed")
+        raise HTTPException(status_code=500, detail="Batch prediction failed.") from exc
+
+    with history_lock:
+        prediction_history.extend(
+            {"input": row.model_dump(), "output": result.model_dump()}
+            for row, result in zip(data, results)
+        )
+    return results
+
+
 # =========================
 # HISTORY ENDPOINT
 # =========================
 @app.get("/history", tags=["Data"])
-def get_history() -> list:
+def get_history(limit: int = 20) -> list:
     """
     Retrieve the last 20 predictions.
 
     Returns list of {input, output} objects.
     """
+    if not 1 <= limit <= MAX_HISTORY_SIZE:
+        raise HTTPException(status_code=422, detail=f"limit must be between 1 and {MAX_HISTORY_SIZE}.")
     with history_lock:
-        data = list(prediction_history)
+        data = list(prediction_history)[-limit:]
     logger.debug(f"History retrieved: {len(data)} entries")
     return data
+
+
+@app.get("/history.csv", tags=["Data"])
+def export_history():
+    """Download recent predictions, inputs, and outputs as a CSV file."""
+    with history_lock:
+        entries = list(prediction_history)
+    output = io.StringIO(newline="")
+    input_fields = list(ROPInput.model_fields)
+    output_fields = list(ROPOutput.model_fields)
+    writer = csv.DictWriter(output, fieldnames=input_fields + output_fields)
+    writer.writeheader()
+    for entry in entries:
+        writer.writerow({**entry["input"], **entry["output"]})
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=rop-prediction-history.csv"},
+    )
 
 
 # =========================

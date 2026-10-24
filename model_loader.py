@@ -1,7 +1,7 @@
 """Model loading and caching."""
 import os
+import tempfile
 import joblib
-import gdown
 from threading import Event, Lock
 from logger import setup_logger
 
@@ -15,19 +15,30 @@ model_lock = Lock()
 
 
 def download_file(file_id: str, output_path: str) -> None:
-    """Download a file from Google Drive if it doesn't exist."""
-    if os.path.exists(output_path):
-        logger.info(f"File already exists: {output_path}")
+    """Download a Google Drive artifact atomically if it is not cached."""
+    if os.path.isfile(output_path) and os.path.getsize(output_path) > 100:
+        logger.info("Using cached model artifact: %s", output_path)
         return
 
+    directory = os.path.dirname(os.path.abspath(output_path))
+    os.makedirs(directory, exist_ok=True)
+    fd, temporary_path = tempfile.mkstemp(prefix=".model-download-", dir=directory)
+    os.close(fd)
     try:
-        logger.info(f"Downloading file {file_id} to {output_path}...")
-        url = f"https://drive.google.com/uc?id={file_id}"
-        gdown.download(url, output_path, quiet=False)
-        logger.info(f"Successfully downloaded: {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to download {file_id}: {e}")
+        logger.info("Downloading model artifact %s", file_id)
+        import gdown
+
+        result = gdown.download(id=file_id, output=temporary_path, quiet=True)
+        if not result or not os.path.isfile(temporary_path) or os.path.getsize(temporary_path) <= 100:
+            raise RuntimeError(f"Google Drive returned an empty or invalid download for {file_id}")
+        os.replace(temporary_path, output_path)
+        logger.info("Downloaded model artifact to %s", output_path)
+    except Exception:
+        logger.exception("Failed to download model artifact %s", file_id)
         raise
+    finally:
+        if os.path.exists(temporary_path):
+            os.remove(temporary_path)
 
 
 def load_models(model_id: str, scaler_id: str, model_path: str, scaler_path: str) -> None:
@@ -52,7 +63,7 @@ def load_models(model_id: str, scaler_id: str, model_path: str, scaler_path: str
             logger.info("Scaler loaded successfully")
 
             model_ready.set()
-            logger.info("Model initialization complete - model is ready")
+            logger.info("Model initialization complete - model is ready for predictions")
 
         except Exception as e:
             logger.error(f"Model initialization failed: {e}", exc_info=True)
