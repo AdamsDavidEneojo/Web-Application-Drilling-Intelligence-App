@@ -329,8 +329,9 @@ input:focus{
 
 .history-item{
   display:grid;
-  grid-template-columns:1fr auto;
-  gap:8px;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
   padding:12px;
 }
 
@@ -342,6 +343,19 @@ input:focus{
   color:var(--muted);
   font-size:12px;
 }
+
+.history-meta{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:5px}
+.history-load{min-height:34px;padding:0 11px;font-size:11px}
+.history-empty{padding:12px;color:var(--muted);font-size:13px}
+.comparison-summary{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.025)}
+.comparison-summary[hidden]{display:none}
+.comparison-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.comparison-heading strong{font-size:13px}
+.comparison-heading span{color:var(--accent);font-size:12px;font-weight:700}
+.comparison-table{width:100%;border-collapse:collapse;font-size:12px;text-align:left}
+.comparison-table th,.comparison-table td{padding:9px 7px;border-bottom:1px solid var(--line)}
+.comparison-table th{color:var(--muted);font-size:10px;font-weight:600}
+.comparison-table tr:last-child td{border-bottom:0}
 
 .batch-panel{margin-top:18px}
 .batch-heading,.upload-row,.batch-actions{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -489,6 +503,7 @@ input:focus{
             <button class="btn secondary" type="submit">Compare Results</button>
             <div class="message" id="compareMessage"></div>
           </div>
+          <div class="comparison-summary" id="comparisonSummary" hidden></div>
         </form>
 
         <section class="panel batch-panel" aria-labelledby="batchHeading">
@@ -539,7 +554,7 @@ input:focus{
 
         <section class="panel" style="margin-top:18px">
           <div class="button-row" style="justify-content:space-between">
-            <h3>Recent Predictions</h3>
+            <div><h3>Recent Predictions</h3><div class="panel-copy" id="historyCount" style="margin:4px 0 0">Saved on this session</div></div>
             <button class="btn secondary" id="exportHistoryBtn" type="button">Export CSV</button>
           </div>
           <div class="history" id="historyList"></div>
@@ -592,6 +607,12 @@ function formatNumber(num){
   return Number.isFinite(num) ? num.toFixed(2) : "--";
 }
 
+function formatLocalDateTime(milliseconds){
+  const date = new Date(milliseconds);
+  if(!Number.isFinite(date.getTime())) return "";
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
 function parseNumberField(id){
   const raw = value(id);
   if(raw === ""){
@@ -630,6 +651,7 @@ function clearForms(){
   drawChart();
   setMessage("predictMessage", "");
   setMessage("compareMessage", "");
+  document.getElementById("comparisonSummary").hidden = true;
 }
 
 function updateMetrics(){
@@ -645,6 +667,23 @@ function actualValues(){
     parseNumberField("actual_fast")
   ];
   return values.every(Number.isFinite) ? values : null;
+}
+
+function renderComparison(predicted, actual){
+  const names = ["ROP Average", "ROP Cut Unit", "ROP Fast"];
+  const summary = document.getElementById("comparisonSummary");
+  const errors = predicted.map((value, index) => Math.abs(value - actual[index]));
+  const mae = errors.reduce((sum, error) => sum + error, 0) / errors.length;
+  summary.innerHTML = `
+    <div class="comparison-heading"><strong>Prediction error</strong><span>Mean absolute error: ${formatNumber(mae)}</span></div>
+    <div class="table-wrap" style="margin:0"><table class="comparison-table">
+      <thead><tr><th>Output</th><th>Predicted</th><th>Actual</th><th>Abs. error</th><th>Relative</th></tr></thead>
+      <tbody>${names.map((name, index) => {
+        const relative = actual[index] === 0 ? "—" : `${formatNumber(errors[index] / Math.abs(actual[index]) * 100)}%`;
+        return `<tr><td>${name}</td><td>${formatNumber(predicted[index])}</td><td>${formatNumber(actual[index])}</td><td>${formatNumber(errors[index])}</td><td>${relative}</td></tr>`;
+      }).join("")}</tbody>
+    </table></div>`;
+  summary.hidden = false;
 }
 
 function drawChart(){
@@ -730,23 +769,55 @@ async function loadHistory(){
     const items = await res.json();
     const list = document.getElementById("historyList");
     list.innerHTML = "";
+    document.getElementById("historyCount").textContent = `${items.length} saved run${items.length === 1 ? "" : "s"} · latest first`;
 
     if(!items.length){
-      list.innerHTML = "<span>No predictions yet.</span>";
+      list.innerHTML = '<div class="history-empty">No predictions yet. Your completed runs will appear here.</div>';
       return;
     }
 
     [...items].reverse().forEach(item => {
       const row = document.createElement("div");
       row.className = "history-item";
-      row.innerHTML = `
-        <div><b>${formatNumber(item.output.ROP_Average)}</b> avg<br><span>Cut ${formatNumber(item.output.ROP_Cut_Unit)} | Fast ${formatNumber(item.output.ROP_Fast)}</span></div>
-        <span>${formatNumber(item.input.depth_of_cut)} depth</span>
-      `;
+      const details = document.createElement("div");
+      const value = document.createElement("b");
+      value.textContent = `${formatNumber(item.output.ROP_Average)} avg`;
+      const outputs = document.createElement("div");
+      outputs.innerHTML = `<span>Cut ${formatNumber(item.output.ROP_Cut_Unit)} · Fast ${formatNumber(item.output.ROP_Fast)}</span>`;
+      const meta = document.createElement("div");
+      meta.className = "history-meta";
+      const date = document.createElement("span");
+      const timestamp = item.created_at ? new Date(item.created_at) : null;
+      date.textContent = timestamp && Number.isFinite(timestamp.getTime()) ? timestamp.toLocaleString() : "Previous run";
+      const depth = document.createElement("span");
+      depth.textContent = `${formatNumber(item.input.depth_of_cut)} depth`;
+      meta.append(date, depth);
+      details.append(value, outputs, meta);
+      const load = document.createElement("button");
+      load.type = "button";
+      load.className = "btn secondary history-load";
+      load.textContent = "Load run";
+      load.addEventListener("click", () => {
+        for(const field of fields){
+          const raw = item.input[field];
+          document.getElementById(field).value = field === "datetime" ? formatLocalDateTime(raw) : (raw ?? "");
+        }
+        lastPrediction = item.output;
+        actualComparison = null;
+        ["actual_avg", "actual_cut", "actual_fast"].forEach(id => document.getElementById(id).value = "");
+        document.getElementById("comparisonSummary").hidden = true;
+        updateMetrics();
+        drawChart();
+        setMessage("predictMessage", "Saved run loaded. Compare it with actual field values or adjust the inputs.");
+        setMessage("compareMessage", "");
+        document.getElementById("predictForm").scrollIntoView({behavior:"smooth", block:"start"});
+      });
+      row.append(details, load);
       list.appendChild(row);
     });
   }catch{
     document.getElementById("historyList").innerHTML = "<span>History unavailable.</span>";
+    document.getElementById("historyCount").textContent = "History is temporarily unavailable";
   }
 }
 
@@ -959,6 +1030,7 @@ document.getElementById("predictForm").addEventListener("submit", async event =>
     drawChart();
     if(actualComparison){
       setMessage("compareMessage", "Comparison updated with the new prediction.");
+      renderComparison([data.ROP_Average, data.ROP_Cut_Unit, data.ROP_Fast], actualComparison);
     }
     setMessage("predictMessage", "Prediction complete.");
     loadHistory();
@@ -985,6 +1057,7 @@ document.getElementById("compareForm").addEventListener("submit", event => {
   }
 
   actualComparison = actual;
+  renderComparison([lastPrediction.ROP_Average, lastPrediction.ROP_Cut_Unit, lastPrediction.ROP_Fast], actual);
   drawChart();
   setMessage("compareMessage", "Comparison updated.");
 });

@@ -5,6 +5,7 @@ FastAPI backend for ROP prediction and analysis
 import threading
 import csv
 import io
+from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 from collections import deque
 
@@ -199,6 +200,7 @@ def predict_rop(data: ROPInput) -> ROPOutput:
         # Store in history
         with history_lock:
             prediction_history.append({
+                "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 "input": data.model_dump(),
                 "output": result.model_dump(),
             })
@@ -237,7 +239,11 @@ def predict_batch(data: list[ROPInput]) -> list[ROPOutput]:
 
     with history_lock:
         prediction_history.extend(
-            {"input": row.model_dump(), "output": result.model_dump()}
+            {
+                "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "input": row.model_dump(),
+                "output": result.model_dump(),
+            }
             for row, result in zip(data, results)
         )
     return results
@@ -269,10 +275,10 @@ def export_history():
     output = io.StringIO(newline="")
     input_fields = list(ROPInput.model_fields)
     output_fields = list(ROPOutput.model_fields)
-    writer = csv.DictWriter(output, fieldnames=input_fields + output_fields)
+    writer = csv.DictWriter(output, fieldnames=["created_at"] + input_fields + output_fields)
     writer.writeheader()
     for entry in entries:
-        writer.writerow({**entry["input"], **entry["output"]})
+        writer.writerow({"created_at": entry.get("created_at", ""), **entry["input"], **entry["output"]})
     output.seek(0)
     return StreamingResponse(
         iter([output.getvalue()]),
