@@ -2,10 +2,30 @@
 import os
 import tempfile
 import joblib
+from urllib.parse import parse_qs, urlparse
 from threading import Event, Lock
 from logger import setup_logger
 
 logger = setup_logger(__name__)
+
+
+def normalize_drive_id(value: str) -> str:
+    """Accept either a bare Google Drive file ID or a sharing URL."""
+    value = value.strip()
+    if "drive.google.com" not in value:
+        return value
+
+    parsed = urlparse(value)
+    query_id = parse_qs(parsed.query).get("id", [None])[0]
+    if query_id:
+        return query_id
+
+    parts = parsed.path.strip("/").split("/")
+    if "d" in parts:
+        index = parts.index("d")
+        if index + 1 < len(parts):
+            return parts[index + 1]
+    raise ValueError("Google Drive URL does not contain a recognizable file ID")
 
 # Global state
 model = None
@@ -25,12 +45,13 @@ def download_file(file_id: str, output_path: str) -> None:
     fd, temporary_path = tempfile.mkstemp(prefix=".model-download-", dir=directory)
     os.close(fd)
     try:
-        logger.info("Downloading model artifact %s", file_id)
+        normalized_id = normalize_drive_id(file_id)
+        logger.info("Downloading model artifact %s", normalized_id)
         import gdown
 
-        result = gdown.download(id=file_id, output=temporary_path, quiet=True)
+        result = gdown.download(id=normalized_id, output=temporary_path, quiet=True)
         if not result or not os.path.isfile(temporary_path) or os.path.getsize(temporary_path) <= 100:
-            raise RuntimeError(f"Google Drive returned an empty or invalid download for {file_id}")
+            raise RuntimeError(f"Google Drive returned an empty or invalid download for {normalized_id}")
         os.replace(temporary_path, output_path)
         logger.info("Downloaded model artifact to %s", output_path)
     except Exception:
