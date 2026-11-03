@@ -457,6 +457,9 @@ input:focus{background:rgba(4,15,19,.66)}
 :root[data-theme="dark"]{color-scheme:dark;--bg:#08151b;--panel:#10232b;--panel-2:#162e37;--line:rgba(159,192,197,.14);--text:#edf5f4;--muted:#9aafb2;--accent:#65ddc8;--accent-2:#eebf73;--chart-text:#91aab2;--chart-grid:rgba(145,170,176,.12)}
 :root[data-theme="dark"] .chart-wrap h3:after{color:var(--accent)}
 .hero-eyebrow{display:block;margin-bottom:8px}
+.draft-note{margin:-4px 0 15px;color:var(--muted);font-size:11px}
+.shortcut-hint{margin:-8px 0 4px;color:var(--muted);font-size:10px;line-height:1.5}
+.shortcut-hint kbd{padding:2px 5px;border:1px solid var(--line);border-radius:5px;background:var(--panel-2);font:inherit;font-size:10px;color:var(--text)}
 .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
 .theme-toggle .theme-icon{font-size:15px;line-height:1}
 .theme-toggle .theme-label{font-size:11px}
@@ -580,6 +583,8 @@ input:focus{background:rgba(4,15,19,.66)}
             <div class="field"><label for="total_gas">Total Gas</label><input id="total_gas" type="number" step="any" required></div>
             <div class="field"><label for="wc_bit_weight">Bit Weight</label><input id="wc_bit_weight" type="number" step="any" required></div>
           </div>
+          <p class="draft-note" id="draftStatus" role="status" aria-live="polite">Input values auto-save on this device as you edit.</p>
+          <p class="shortcut-hint">Quick actions: <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> to predict · <kbd>Alt</kbd> + <kbd>S</kbd> to load sample</p>
           <div class="actions">
             <button class="btn" id="predictBtn" type="submit" disabled>Run prediction</button>
             <div class="message" id="predictMessage" aria-live="polite">Load the sample or enter all eight inputs.</div>
@@ -686,6 +691,8 @@ let actualComparison = null;
 let chart;
 let modelReady = false;
 let predictionBusy = false;
+const draftStorageKey = "axelrod-prediction-draft-v1";
+let draftSaveTimer;
 
 function applyTheme(theme, persist=true){
   const selected = theme === "dark" ? "dark" : "light";
@@ -743,17 +750,48 @@ function getPayload(){
   return payload;
 }
 
+function saveInputDraft(){
+  const draft = Object.fromEntries(fields.map(id => [id, document.getElementById(id).value]));
+  try{
+    localStorage.setItem(draftStorageKey, JSON.stringify(draft));
+    document.getElementById("draftStatus").textContent = "Draft saved on this device.";
+  }catch{
+    document.getElementById("draftStatus").textContent = "Draft saving is unavailable in this browser.";
+  }
+}
+
+function restoreInputDraft(){
+  try{
+    const draft = JSON.parse(localStorage.getItem(draftStorageKey) || "null");
+    if(!draft || typeof draft !== "object") return;
+    let restored = false;
+    for(const id of fields){
+      if(typeof draft[id] === "string" && draft[id] !== ""){
+        document.getElementById(id).value = draft[id];
+        restored = true;
+      }
+    }
+    if(restored) document.getElementById("draftStatus").textContent = "Restored your saved input draft from this device.";
+  }catch{
+    document.getElementById("draftStatus").textContent = "Could not restore the saved draft.";
+  }
+}
+
 function fillSample(){
   for(const [id, val] of Object.entries(sample)){
     document.getElementById(id).value = val;
   }
   const now = new Date();
   document.getElementById("datetime").value = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  saveInputDraft();
   setMessage("predictMessage", "Sample values loaded.");
 }
 
 function clearForms(){
+  clearTimeout(draftSaveTimer);
   document.querySelectorAll("input").forEach(input => input.value = "");
+  try{localStorage.removeItem(draftStorageKey)}catch{}
+  document.getElementById("draftStatus").textContent = "Saved input draft cleared.";
   lastPrediction = null;
   actualComparison = null;
   updateMetrics();
@@ -914,6 +952,7 @@ async function loadHistory(){
           const raw = item.input[field];
           document.getElementById(field).value = field === "datetime" ? formatLocalDateTime(raw) : (raw ?? "");
         }
+        saveInputDraft();
         lastPrediction = item.output;
         actualComparison = null;
         ["actual_avg", "actual_cut", "actual_fast"].forEach(id => document.getElementById(id).value = "");
@@ -1176,8 +1215,23 @@ document.getElementById("compareForm").addEventListener("submit", event => {
 
 document.getElementById("sampleBtn").addEventListener("click", fillSample);
 document.getElementById("clearBtn").addEventListener("click", clearForms);
+for(const id of fields){
+  document.getElementById(id).addEventListener("input", () => {
+    clearTimeout(draftSaveTimer);
+    draftSaveTimer = setTimeout(saveInputDraft, 350);
+  });
+}
 document.getElementById("themeToggle").addEventListener("click", () => {
   applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+});
+document.addEventListener("keydown", event => {
+  if((event.ctrlKey || event.metaKey) && event.key === "Enter"){
+    event.preventDefault();
+    document.getElementById("predictForm").requestSubmit();
+  }else if(event.altKey && event.key.toLowerCase() === "s"){
+    event.preventDefault();
+    fillSample();
+  }
 });
 document.getElementById("overviewBtn").addEventListener("click", () => {
   window.location.href = "/welcome";
@@ -1193,6 +1247,7 @@ document.getElementById("exportHistoryBtn").addEventListener("click", () => {
 });
 
 applyTheme(document.documentElement.dataset.theme, false);
+restoreInputDraft();
 drawChart();
 refreshStatus();
 loadHistory();
