@@ -14,6 +14,9 @@ Axelrod is a production-ready machine learning web application for predicting ra
 - Real-time model status monitoring
 - Predicted vs. actual value comparison with Chart.js visualization
 - Recent prediction history (last 20 predictions)
+- Light and dark themes with the selected theme remembered in the browser
+- Automatic local input draft recovery after refresh
+- Keyboard shortcuts for running a prediction and loading sample data
 - Batch prediction API (up to 100 rows per request)
 - Downloadable CSV export of recent predictions
 - Responsive design for desktop and mobile
