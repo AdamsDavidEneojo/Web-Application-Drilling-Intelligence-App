@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Axelrod Dashboard</title>
 <link rel="icon" href="/static/logo.jpg">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("axelrod-theme")==="dark"?"dark":"light"}catch{document.documentElement.dataset.theme="light"}</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root{
@@ -427,6 +428,40 @@ input:focus{background:rgba(4,15,19,.66)}
 ::selection{background:rgba(101,221,200,.28);color:#fff}
 @media (prefers-reduced-motion:no-preference){.panel,.metric{animation:arrive .45s both}.metrics .metric:nth-child(2){animation-delay:.05s}.metrics .metric:nth-child(3){animation-delay:.1s}@keyframes arrive{from{opacity:.65;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}}
 
+/* Light is the default; dark mode is a saved user preference. */
+:root:not([data-theme="dark"]){color-scheme:light;--bg:#f3f7f6;--panel:#fff;--panel-2:#f7fbfa;--line:#dfe9e7;--text:#142a30;--muted:#687d82;--accent:#087f72;--accent-2:#b77b25;--chart-text:#526970;--chart-grid:rgba(48,83,88,.12)}
+:root:not([data-theme="dark"]) body{background-color:var(--bg);background-image:linear-gradient(rgba(42,81,82,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(42,81,82,.035) 1px,transparent 1px),radial-gradient(ellipse at 83% -15%,rgba(43,163,148,.11),transparent 40rem),linear-gradient(145deg,#f7faf9,#edf4f2 62%,#f7faf9);background-size:36px 36px,36px 36px,auto,auto}
+:root:not([data-theme="dark"]) .sidebar{background:rgba(255,255,255,.88);border-color:#dfe9e7;box-shadow:8px 0 30px rgba(35,69,70,.035)}
+:root:not([data-theme="dark"]) .mark{background:radial-gradient(ellipse at 50% 0%,rgba(8,127,114,.10),transparent 70%),#f4f9f7;border-color:#dfebe7;box-shadow:inset 0 1px #fff,0 12px 32px rgba(31,73,70,.08)}
+:root:not([data-theme="dark"]) .nav-item{color:#63777b;background:#f7faf9;border-color:#e8efed}
+:root:not([data-theme="dark"]) .nav-item:nth-of-type(2){color:#126c62;border-color:rgba(8,127,114,.15);background:linear-gradient(90deg,rgba(8,127,114,.09),rgba(8,127,114,.025))}
+:root:not([data-theme="dark"]) .status-note,:root:not([data-theme="dark"]) .topbar p{color:#60757a}
+:root:not([data-theme="dark"]) .btn{color:#fff;background:#087f72;box-shadow:0 7px 19px rgba(8,127,114,.16)}
+:root:not([data-theme="dark"]) .btn:hover:not(:disabled){box-shadow:0 11px 24px rgba(8,127,114,.22)}
+:root:not([data-theme="dark"]) .btn.secondary{color:#264248;background:#fff;border-color:#dce7e5}
+:root:not([data-theme="dark"]) .btn.secondary:hover:not(:disabled){color:#096f64;border-color:rgba(8,127,114,.35);background:#f2faf8}
+:root:not([data-theme="dark"]) .panel,:root:not([data-theme="dark"]) .metric,:root:not([data-theme="dark"]) .history-item{border-color:#e1eae8;background:linear-gradient(150deg,#fff,#fbfdfc);box-shadow:0 12px 32px rgba(37,72,72,.065),inset 0 1px #fff}
+:root:not([data-theme="dark"]) label{color:#556e73}
+:root:not([data-theme="dark"]) input{color:#18343a;border-color:#d9e5e2;background:#f8fbfa}
+:root:not([data-theme="dark"]) input:focus{background:#fff;box-shadow:0 0 0 3px rgba(8,127,114,.12)}
+:root:not([data-theme="dark"]) .metric span{color:#6a7e82}
+:root:not([data-theme="dark"]) .history-item{background:#fbfdfc}
+:root:not([data-theme="dark"]) .history-item:hover{border-color:rgba(8,127,114,.3);background:#f5fbf9}
+:root:not([data-theme="dark"]) .comparison-summary{background:#f7faf9}
+:root:not([data-theme="dark"]) .file-picker{color:#25464a;border-color:rgba(8,127,114,.3);background:rgba(8,127,114,.035)}
+:root:not([data-theme="dark"]) .table-wrap{border-color:#dfe9e7}
+:root:not([data-theme="dark"]) .table-wrap th{color:#597176;background:#f4f8f7}
+:root:not([data-theme="dark"]) .chart-wrap h3:after{border-color:rgba(8,127,114,.18)}
+:root:not([data-theme="dark"]) .comparison-heading span,:root:not([data-theme="dark"]) .metric strong{color:#087f72}
+:root:not([data-theme="dark"]) ::selection{background:rgba(8,127,114,.2);color:#102a2b}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#08151b;--panel:#10232b;--panel-2:#162e37;--line:rgba(159,192,197,.14);--text:#edf5f4;--muted:#9aafb2;--accent:#65ddc8;--accent-2:#eebf73;--chart-text:#91aab2;--chart-grid:rgba(145,170,176,.12)}
+:root[data-theme="dark"] .chart-wrap h3:after{color:var(--accent)}
+.hero-eyebrow{display:block;margin-bottom:8px}
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+.theme-toggle .theme-icon{font-size:15px;line-height:1}
+.theme-toggle .theme-label{font-size:11px}
+@media(max-width:660px){.theme-toggle{flex:0 0 auto!important}.topbar .button-row{justify-content:flex-start}}
+
 @media (max-width:980px){
   .app{
     grid-template-columns:1fr;
@@ -522,6 +557,7 @@ input:focus{background:rgba(4,15,19,.66)}
         <p>Turn drilling signals into clear rate of penetration estimates. Start with sample values, then compare predictions with field results.</p>
       </div>
       <div class="button-row">
+        <button class="btn secondary theme-toggle" id="themeToggle" type="button" aria-pressed="false"><span class="theme-icon" aria-hidden="true">☾</span><span class="theme-label">Dark mode</span></button>
         <button class="btn secondary" id="overviewBtn" type="button">Overview</button>
         <button class="btn secondary" id="copilotBtn" type="button">Knowledge Copilot</button>
         <button class="btn secondary" id="resultsBtn" type="button">Results Guide</button>
@@ -651,6 +687,21 @@ let chart;
 let modelReady = false;
 let predictionBusy = false;
 
+function applyTheme(theme, persist=true){
+  const selected = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = selected;
+  const isDark = selected === "dark";
+  const toggle = document.getElementById("themeToggle");
+  toggle.setAttribute("aria-pressed", String(isDark));
+  toggle.setAttribute("aria-label", `Switch to ${isDark ? "light" : "dark"} mode`);
+  toggle.querySelector(".theme-icon").textContent = isDark ? "☀" : "☾";
+  toggle.querySelector(".theme-label").textContent = isDark ? "Light mode" : "Dark mode";
+  if(persist){
+    try{localStorage.setItem("axelrod-theme", selected)}catch{}
+  }
+  if(chart) drawChart();
+}
+
 function value(id){
   return document.getElementById(id).value.trim();
 }
@@ -757,6 +808,9 @@ function drawChart(){
   const predicted = lastPrediction
     ? [lastPrediction.ROP_Average, lastPrediction.ROP_Cut_Unit, lastPrediction.ROP_Fast]
     : [0, 0, 0];
+  const chartStyles = getComputedStyle(document.documentElement);
+  const chartText = chartStyles.getPropertyValue("--chart-text").trim();
+  const chartGrid = chartStyles.getPropertyValue("--chart-grid").trim();
 
   if(chart) chart.destroy();
 
@@ -783,11 +837,11 @@ function drawChart(){
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: "#eef7f8" } }
+        legend: { labels: { color: chartText } }
       },
       scales: {
-        x: { ticks: { color: "#91aab0" }, grid: { color: "rgba(145,170,176,.12)" } },
-        y: { ticks: { color: "#91aab0" }, grid: { color: "rgba(145,170,176,.12)" }, beginAtZero: true }
+        x: { ticks: { color: chartText }, grid: { color: chartGrid } },
+        y: { ticks: { color: chartText }, grid: { color: chartGrid }, beginAtZero: true }
       }
     }
   });
@@ -1122,6 +1176,9 @@ document.getElementById("compareForm").addEventListener("submit", event => {
 
 document.getElementById("sampleBtn").addEventListener("click", fillSample);
 document.getElementById("clearBtn").addEventListener("click", clearForms);
+document.getElementById("themeToggle").addEventListener("click", () => {
+  applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+});
 document.getElementById("overviewBtn").addEventListener("click", () => {
   window.location.href = "/welcome";
 });
@@ -1135,6 +1192,7 @@ document.getElementById("exportHistoryBtn").addEventListener("click", () => {
   window.location.href = "/history.csv";
 });
 
+applyTheme(document.documentElement.dataset.theme, false);
 drawChart();
 refreshStatus();
 loadHistory();
