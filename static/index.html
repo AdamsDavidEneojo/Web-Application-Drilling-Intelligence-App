@@ -460,6 +460,19 @@ input:focus{background:rgba(4,15,19,.66)}
 .draft-note{margin:-4px 0 15px;color:var(--muted);font-size:11px}
 .shortcut-hint{margin:-8px 0 4px;color:var(--muted);font-size:10px;line-height:1.5}
 .shortcut-hint kbd{padding:2px 5px;border:1px solid var(--line);border-radius:5px;background:var(--panel-2);font:inherit;font-size:10px;color:var(--text)}
+.preset-box{margin:16px 0 13px;padding:13px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.018)}
+.preset-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+.preset-heading strong{font-size:12px}
+.preset-heading span{color:var(--muted);font-size:10px}
+.preset-save-row,.preset-load-row{display:flex;align-items:center;gap:7px}
+.preset-load-row{margin-top:7px}
+.preset-box input,.preset-box select{min-height:37px;padding:0 10px;font-size:11px}
+.preset-box input{flex:1}
+.preset-box select{flex:1;min-width:0;color:var(--text);border:1px solid var(--line);border-radius:9px;background:var(--panel-2)}
+.preset-box .btn{min-height:37px;padding:0 10px;font-size:10px;white-space:nowrap}
+.preset-box .message{min-height:0;margin-top:5px;padding:0;font-size:10px}
+:root:not([data-theme="dark"]) .preset-box{background:#f7faf9}
+:root:not([data-theme="dark"]) .preset-box select{color:#18343a;background:#fff}
 .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
 .theme-toggle .theme-icon{font-size:15px;line-height:1}
 .theme-toggle .theme-label{font-size:11px}
@@ -584,6 +597,19 @@ input:focus{background:rgba(4,15,19,.66)}
             <div class="field"><label for="wc_bit_weight">Bit Weight</label><input id="wc_bit_weight" type="number" step="any" required></div>
           </div>
           <p class="draft-note" id="draftStatus" role="status" aria-live="polite">Input values auto-save on this device as you edit.</p>
+          <div class="preset-box" aria-label="Saved input presets">
+            <div class="preset-heading"><strong>Saved setups</strong><span>Stored on this device</span></div>
+            <div class="preset-save-row">
+              <input id="presetName" type="text" maxlength="40" placeholder="Name this setup" aria-label="Name this setup">
+              <button class="btn secondary" id="savePresetBtn" type="button">Save setup</button>
+            </div>
+            <div class="preset-load-row">
+              <select id="presetSelect" aria-label="Choose a saved setup"><option value="">No saved setups</option></select>
+              <button class="btn secondary" id="loadPresetBtn" type="button" disabled>Load</button>
+              <button class="btn secondary" id="removePresetBtn" type="button" disabled>Remove</button>
+            </div>
+            <div class="message" id="presetMessage" role="status" aria-live="polite"></div>
+          </div>
           <p class="shortcut-hint">Quick actions: <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> to predict · <kbd>Alt</kbd> + <kbd>S</kbd> to load sample</p>
           <div class="actions">
             <button class="btn" id="predictBtn" type="submit" disabled>Run prediction</button>
@@ -692,6 +718,7 @@ let chart;
 let modelReady = false;
 let predictionBusy = false;
 const draftStorageKey = "axelrod-prediction-draft-v1";
+const presetStorageKey = "axelrod-input-presets-v1";
 let draftSaveTimer;
 
 function applyTheme(theme, persist=true){
@@ -774,6 +801,94 @@ function restoreInputDraft(){
     if(restored) document.getElementById("draftStatus").textContent = "Restored your saved input draft from this device.";
   }catch{
     document.getElementById("draftStatus").textContent = "Could not restore the saved draft.";
+  }
+}
+
+function readPresets(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(presetStorageKey) || "[]");
+    return Array.isArray(saved) ? saved.filter(item => item && typeof item.id === "string" && typeof item.name === "string" && item.inputs && fields.every(id => typeof item.inputs[id] === "string")) : [];
+  }catch{
+    return [];
+  }
+}
+
+function refreshPresetOptions(selectedId=""){
+  const select = document.getElementById("presetSelect");
+  const presets = readPresets();
+  select.replaceChildren();
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = presets.length ? "Choose a saved setup" : "No saved setups";
+  select.appendChild(placeholder);
+  for(const preset of presets){
+    const option = document.createElement("option");
+    option.value = preset.id;
+    option.textContent = preset.name;
+    select.appendChild(option);
+  }
+  select.value = selectedId;
+  document.getElementById("loadPresetBtn").disabled = !select.value;
+  document.getElementById("removePresetBtn").disabled = !select.value;
+}
+
+function savePreset(){
+  const name = document.getElementById("presetName").value.trim();
+  if(!name){
+    setMessage("presetMessage", "Give this setup a name first.", true);
+    document.getElementById("presetName").focus();
+    return;
+  }
+  const payload = getPayload();
+  if(Object.values(payload).some(value => !Number.isFinite(value))){
+    setMessage("presetMessage", "Complete all eight inputs before saving a setup.", true);
+    return;
+  }
+  const presets = readPresets();
+  const existing = presets.find(item => item.name.toLocaleLowerCase() === name.toLocaleLowerCase());
+  if(!existing && presets.length >= 20){
+    setMessage("presetMessage", "You can save up to 20 setups on this device.", true);
+    return;
+  }
+  const id = existing?.id || (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const snapshot = {id, name, inputs:Object.fromEntries(fields.map(field => [field, document.getElementById(field).value]))};
+  const next = existing ? presets.map(item => item.id === id ? snapshot : item) : [...presets, snapshot];
+  try{
+    localStorage.setItem(presetStorageKey, JSON.stringify(next));
+    refreshPresetOptions(id);
+    setMessage("presetMessage", existing ? `“${name}” updated.` : `“${name}” saved.`);
+  }catch{
+    setMessage("presetMessage", "Could not save this setup in browser storage.", true);
+  }
+}
+
+function loadPreset(){
+  const preset = readPresets().find(item => item.id === document.getElementById("presetSelect").value);
+  if(!preset) return;
+  for(const field of fields) document.getElementById(field).value = preset.inputs[field];
+  saveInputDraft();
+  lastPrediction = null;
+  actualComparison = null;
+  ["actual_avg", "actual_cut", "actual_fast"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("comparisonSummary").hidden = true;
+  updateMetrics();
+  drawChart();
+  setMessage("predictMessage", `Loaded “${preset.name}”. Run a prediction to see results.`);
+  setMessage("compareMessage", "");
+  setMessage("presetMessage", `Loaded “${preset.name}”.`);
+}
+
+function removePreset(){
+  const select = document.getElementById("presetSelect");
+  const preset = readPresets().find(item => item.id === select.value);
+  if(!preset || !window.confirm(`Remove the saved setup “${preset.name}”?`)) return;
+  const remaining = readPresets().filter(item => item.id !== preset.id);
+  try{
+    localStorage.setItem(presetStorageKey, JSON.stringify(remaining));
+    refreshPresetOptions();
+    setMessage("presetMessage", `“${preset.name}” removed.`);
+  }catch{
+    setMessage("presetMessage", "Could not update browser storage.", true);
   }
 }
 
@@ -1215,6 +1330,13 @@ document.getElementById("compareForm").addEventListener("submit", event => {
 
 document.getElementById("sampleBtn").addEventListener("click", fillSample);
 document.getElementById("clearBtn").addEventListener("click", clearForms);
+document.getElementById("savePresetBtn").addEventListener("click", savePreset);
+document.getElementById("loadPresetBtn").addEventListener("click", loadPreset);
+document.getElementById("removePresetBtn").addEventListener("click", removePreset);
+document.getElementById("presetSelect").addEventListener("change", event => {
+  document.getElementById("loadPresetBtn").disabled = !event.target.value;
+  document.getElementById("removePresetBtn").disabled = !event.target.value;
+});
 for(const id of fields){
   document.getElementById(id).addEventListener("input", () => {
     clearTimeout(draftSaveTimer);
@@ -1247,6 +1369,7 @@ document.getElementById("exportHistoryBtn").addEventListener("click", () => {
 });
 
 applyTheme(document.documentElement.dataset.theme, false);
+refreshPresetOptions();
 restoreInputDraft();
 drawChart();
 refreshStatus();
