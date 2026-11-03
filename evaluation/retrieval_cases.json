@@ -1,0 +1,26 @@
+[
+  {
+    "question": "What factors can affect rate of penetration?",
+    "expected_sources": ["rop-basics.md"]
+  },
+  {
+    "question": "What does weight on bit mean?",
+    "expected_sources": ["drilling-signals.md", "rop-basics.md"]
+  },
+  {
+    "question": "How does drilling fluid help during drilling?",
+    "expected_sources": ["drilling-signals.md"]
+  },
+  {
+    "question": "What is standpipe pressure?",
+    "expected_sources": ["drilling-signals.md"]
+  },
+  {
+    "question": "Is ROP enough to assess well safety?",
+    "expected_sources": ["rop-basics.md"]
+  },
+  {
+    "question": "Can changing rotary speed always improve drilling speed?",
+    "expected_sources": ["rop-basics.md"]
+  }
+]

@@ -412,3 +412,13 @@ The dashboard now includes a Knowledge Copilot at `/copilot`. It searches local 
 To enable generated answers, set `OPENAI_API_KEY` in the environment and optionally set `OPENAI_MODEL` (defaults to `gpt-4o-mini`). The copilot retrieves local source excerpts first, then asks the configured model to answer using those excerpts and cite filenames. The API endpoints are `POST /copilot/ask` and `GET /copilot/status`.
 
 This is an educational feature; do not use it for operational drilling or safety decisions.
+
+### Measure retrieval quality
+
+Before changing the retriever, run the offline evaluation set:
+
+```bash
+python evaluate_retrieval.py --top-k 3
+```
+
+The script reports **Recall@k** (how often an expected reference is retrieved) and **MRR** (how highly the first expected reference ranks), plus per-question results. The labels live in `evaluation/retrieval_cases.json`; add representative questions and expected source filenames as the knowledge base grows. It makes no OpenAI calls and does not measure whether a generated answer is correct, so review answer quality separately before comparing models or chunking strategies.
