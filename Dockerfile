@@ -11,6 +11,7 @@ COPY main.py config.py schemas.py logger.py model_loader.py predict_service.py .
 COPY static ./static
 COPY copilot_retrieval.py ./
 COPY knowledge ./knowledge
+EXPOSE 10000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \

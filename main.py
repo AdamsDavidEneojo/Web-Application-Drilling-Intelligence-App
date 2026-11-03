@@ -13,7 +13,7 @@ from collections import deque
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, Response, StreamingResponse
 
 from config import (
     APP_TITLE,
@@ -101,6 +101,11 @@ def page_response(path: str) -> FileResponse:
 def home():
     """Home page - redirects to app."""
     return page_response(str(STATIC_DIR / "index.html"))
+
+@app.head("/", include_in_schema=False)
+def home_head():
+    """Answer Render port probes without sending the dashboard HTML."""
+    return Response(status_code=200, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/app", include_in_schema=False)
