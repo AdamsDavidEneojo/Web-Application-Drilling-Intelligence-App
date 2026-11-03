@@ -5,6 +5,7 @@ FastAPI backend for ROP prediction and analysis
 import threading
 import csv
 import io
+import os
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 from collections import deque
@@ -28,8 +29,11 @@ from schemas import ROPInput, ROPOutput, HealthCheck, ModelInfo, APIInfo
 from model_loader import load_models, is_model_ready, has_model_load_failed
 from predict_service import predict
 from logger import setup_logger
+from pydantic import BaseModel, Field
+from copilot_retrieval import KnowledgeBase
 
 logger = setup_logger(__name__)
+knowledge_base = KnowledgeBase(STATIC_DIR.parent / 'knowledge')
 
 # =========================
 # HISTORY & THREAD SAFETY
@@ -167,6 +171,7 @@ def api_info() -> APIInfo:
             "/predict/batch",
             "/history",
             "/history.csv",
+            "/copilot/ask",
         ],
     )
 
@@ -296,13 +301,65 @@ def docs():
     return FileResponse(str(STATIC_DIR / "index.html"))
 
 
+# =========================
+# DRILLING KNOWLEDGE COPILOT
+# =========================
+class CopilotRequest(BaseModel):
+    question: str = Field(min_length=3, max_length=2000)
+    top_k: int = Field(default=4, ge=1, le=8)
+
+
+class CopilotSource(BaseModel):
+    name: str
+    score: float
+    excerpt: str
+
+
+class CopilotResponse(BaseModel):
+    answer: str
+    sources: list[CopilotSource]
+    mode: str
+
+
+@app.get("/copilot", include_in_schema=False)
+def copilot_ui():
+    return page_response(str(STATIC_DIR / "copilot.html"))
+
+
+@app.get("/copilot/status", tags=["Copilot"])
+def copilot_status() -> dict:
+    return {"documents_indexed": len({chunk.source for chunk in knowledge_base.chunks}), "llm_enabled": bool(os.getenv("OPENAI_API_KEY"))}
+
+
+@app.post("/copilot/ask", response_model=CopilotResponse, tags=["Copilot"])
+def ask_copilot(request: CopilotRequest) -> CopilotResponse:
+    matches = knowledge_base.search(request.question, request.top_k)
+    if not matches:
+        return CopilotResponse(answer="I couldn't find relevant information in the local knowledge base. Add Markdown references to the knowledge/ folder and restart the app.", sources=[], mode="retrieval-only")
+
+    sources = [CopilotSource(name=item["source"], score=item["score"], excerpt=item["text"][:700]) for item in matches]
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        answer = "LLM mode is off. Relevant excerpts:\n\n" + "\n\n".join(f"[{item['source']}] {item['text']}" for item in matches)
+        return CopilotResponse(answer=answer, sources=sources, mode="retrieval-only")
+
+    context = "\n\n".join(f"[{item['source']}] {item['text']}" for item in matches)
+    try:
+        from openai import OpenAI
+        completion = OpenAI(api_key=api_key).chat.completions.create(
+            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"), temperature=0.2,
+            messages=[
+                {"role": "system", "content": "Answer using only supplied drilling reference excerpts. If they do not contain the answer, say so. Cite claims with the source filename in square brackets. This is educational, not operational or safety advice."},
+                {"role": "user", "content": f"Question: {request.question}\n\nReference excerpts:\n{context}"},
+            ],
+        )
+        return CopilotResponse(answer=completion.choices[0].message.content or "The model returned an empty answer.", sources=sources, mode="rag")
+    except Exception as exc:
+        logger.warning("Copilot model request failed: %s", type(exc).__name__)
+        return CopilotResponse(answer="The language model request failed. Retrieved excerpts are shown below.", sources=sources, mode="retrieval-only")
+
+
 if __name__ == "__main__":
     import uvicorn
-
     logger.info(f"Starting {APP_TITLE} server...")
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=False,
-    )
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)

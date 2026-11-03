@@ -73,3 +73,7 @@ docker-compose.yml
 docker-compose.*.yml
 Dockerfile.dev
 .dockerignore
+
+# Include the copilot's Markdown corpus in the image
+!knowledge/
+!knowledge/*.md

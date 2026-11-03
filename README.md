@@ -401,3 +401,11 @@ For issues, questions, or contributions:
 ---
 
 **Ready to deploy?** Start with `docker compose up --pull always` or push to GitHub and connect to Render/Cloud Run.
+
+## Drilling Knowledge Copilot
+
+The dashboard now includes a Knowledge Copilot at `/copilot`. It searches local Markdown references in `knowledge/` and returns source excerpts. Add `.md` files to that folder and restart the app to index them. Search runs locally with TF-IDF and does not require an API key.
+
+To enable generated answers, set `OPENAI_API_KEY` in the environment and optionally set `OPENAI_MODEL` (defaults to `gpt-4o-mini`). The copilot retrieves local source excerpts first, then asks the configured model to answer using those excerpts and cite filenames. The API endpoints are `POST /copilot/ask` and `GET /copilot/status`.
+
+This is an educational feature; do not use it for operational drilling or safety decisions.
